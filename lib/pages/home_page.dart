@@ -1,86 +1,121 @@
-import 'package:appcounter/pages/cart_page.dart';
-import 'package:appcounter/pages/profile_page.dart';
-import 'package:appcounter/pages/search_page.dart';
-import 'package:appcounter/pages/shop_page.dart';
 import 'package:flutter/material.dart';
+import '../models/brand.dart';
+import '../widgets/brand_card.dart';
+import 'brand_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Adjust grid columns based on screen width
+    final crossAxisCount = screenWidth > 600 ? 3 : 2;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            _ScrollingBanner(
+              imagePaths: brands.map((b) => b.logoAsset).toList(),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1,
+                ),
+                itemCount: brands.length,
+                itemBuilder: (context, index) {
+                  final brand = brands[index];
+                  return BrandCard(
+                    brand: brand,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BrandPage(
+                            brandId: brand.id,
+                            brandName: brand.name,
+                          ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
+class _ScrollingBanner extends StatefulWidget {
+  final List<String> imagePaths;
 
-  // Pages for each tab
-  final List<Widget> _pages = [
-    const ShopPage(),
-    const SearchPage(),
-    const CartPage(),
-    const ProfilePage(),
-  ];
+  const _ScrollingBanner({required this.imagePaths});
+
+  @override
+  State<_ScrollingBanner> createState() => _ScrollingBannerState();
+}
+
+class _ScrollingBannerState extends State<_ScrollingBanner> {
+  final ScrollController _controller = ScrollController();
+  double _position = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _startScrolling());
+  }
+
+  void _startScrolling() async {
+    while (mounted) {
+      await Future.delayed(const Duration(milliseconds: 40));
+      if (!_controller.hasClients) continue;
+      _position += 1;
+      if (_position >= _controller.position.maxScrollExtent) {
+        _position = 0;
+      }
+      _controller.jumpTo(_position);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          _getTitle(), // Dynamic title based on tab
-          style: const TextStyle(color: Colors.white),
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return SizedBox(
+      height: screenHeight * 0.1,
+      child: ListView.builder(
+        controller: _controller,
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.imagePaths.length,
+        itemBuilder: (context, i) => Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+          child: Image.asset(
+            widget.imagePaths[i],
+            height: screenHeight * 0.06,
+            width: screenWidth * 0.15,
+            fit: BoxFit.contain,
+          ),
         ),
-        backgroundColor: Colors.grey[500],
-      ),
-
-      // This is what makes the navigation bar actually change the page
-      body: _pages[_selectedIndex],
-
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home),
-            label: 'Home',
-            selectedIcon: Icon(Icons.home_filled),
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search),
-            label: 'Search',
-            selectedIcon: Icon(Icons.search_rounded),
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-            selectedIcon: Icon(Icons.shopping_cart_checkout),
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-            selectedIcon: Icon(Icons.person_outline),
-          ),
-        ],
       ),
     );
   }
 
-  String _getTitle() {
-    switch (_selectedIndex) {
-      case 0:
-        return 'Shop';
-      case 1:
-        return 'Search';
-      case 2:
-        return 'Cart';
-      case 3:
-        return 'Profile';
-      default:
-        return 'Shop';
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

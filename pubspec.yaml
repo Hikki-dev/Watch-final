@@ -64,6 +64,7 @@ flutter:
   - lib/images/watch2.jpg
   - lib/images/watch3.jpg
   - lib/images/watch4.jpg
+  - assets/images/brands/
 
 
   #   - images/a_dot_ham.jpeg
