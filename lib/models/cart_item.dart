@@ -1,11 +1,10 @@
-import 'product.dart';
-
+// lib/models/cart_item.dart
 class CartItem {
-  final Product product;
-  final int quantity;
+  final Watch watch;
+  int quantity;
 
-  const CartItem({required this.product, required this.quantity});
+  CartItem({required this.watch, this.quantity = 1});
 
-  CartItem copyWith({Product? product, int? quantity}) =>
-      CartItem(product: product ?? this.product, quantity: quantity ?? this.quantity);
+  double get totalPrice => watch.price * quantity;
+  String get displayTotalPrice => '\$${totalPrice.toStringAsFixed(2)}';
 }
