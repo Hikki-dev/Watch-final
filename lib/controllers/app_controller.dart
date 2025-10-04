@@ -9,7 +9,7 @@ class AppController extends ChangeNotifier {
   User? _currentUser;
   final Cart _cart = Cart();
   final List<Watch> _watches = [];
-  
+
   // Public getters
   User? get currentUser => _currentUser;
   bool get isLoggedIn => _currentUser != null;
@@ -50,11 +50,14 @@ class AppController extends ChangeNotifier {
   List<Watch> searchWatches(String query) {
     if (query.isEmpty) return [];
     final q = query.toLowerCase();
-    return _watches.where((w) => 
-      w.name.toLowerCase().contains(q) ||
-      w.brand.toLowerCase().contains(q) ||
-      w.category.toLowerCase().contains(q)
-    ).toList();
+    return _watches
+        .where(
+          (w) =>
+              w.name.toLowerCase().contains(q) ||
+              w.brand.toLowerCase().contains(q) ||
+              w.category.toLowerCase().contains(q),
+        )
+        .toList();
   }
 
   Watch? getWatchById(String id) {
@@ -100,33 +103,139 @@ class AppController extends ChangeNotifier {
     _watches.clear();
     _watches.addAll([
       // Rolex
-      Watch(id: '1', name: 'Submariner', brand: 'Rolex', price: 12999.0, category: 'Diving', description: 'Professional diving watch'),
-      Watch(id: '2', name: 'Daytona', brand: 'Rolex', price: 15999.0, category: 'Racing', description: 'Racing chronograph'),
-      Watch(id: '3', name: 'GMT-Master II', brand: 'Rolex', price: 14999.0, category: 'GMT', description: 'Dual timezone watch'),
-      
+      Watch(
+        id: '1',
+        name: 'Submariner',
+        brand: 'Rolex',
+        price: 12999.0,
+        category: 'Diving',
+        description:
+            'Professional diving watch with exceptional water resistance',
+      ),
+      Watch(
+        id: '2',
+        name: 'Daytona',
+        brand: 'Rolex',
+        price: 15999.0,
+        category: 'Racing',
+        description: 'Racing chronograph designed for speed enthusiasts',
+      ),
+      Watch(
+        id: '3',
+        name: 'GMT-Master II',
+        brand: 'Rolex',
+        price: 14999.0,
+        category: 'GMT',
+        description: 'Dual timezone watch for international travelers',
+      ),
+
       // Omega
-      Watch(id: '4', name: 'Speedmaster', brand: 'Omega', price: 5999.0, category: 'Space', description: 'Moon landing watch'),
-      Watch(id: '5', name: 'Seamaster', brand: 'Omega', price: 4599.0, category: 'Diving', description: 'Professional diving watch'),
-      Watch(id: '6', name: 'Constellation', brand: 'Omega', price: 3999.0, category: 'Dress', description: 'Elegant timepiece'),
-      
+      Watch(
+        id: '4',
+        name: 'Speedmaster',
+        brand: 'Omega',
+        price: 5999.0,
+        category: 'Space',
+        description: 'The moonwatch worn on every lunar mission',
+      ),
+      Watch(
+        id: '5',
+        name: 'Seamaster',
+        brand: 'Omega',
+        price: 4599.0,
+        category: 'Diving',
+        description: 'Professional diving watch with Co-Axial movement',
+      ),
+      Watch(
+        id: '6',
+        name: 'Constellation',
+        brand: 'Omega',
+        price: 3999.0,
+        category: 'Dress',
+        description: 'Elegant timepiece with distinctive design',
+      ),
+
       // Patek Philippe
-      Watch(id: '7', name: 'Nautilus', brand: 'Patek Philippe', price: 29999.0, category: 'Sport', description: 'Luxury sports watch'),
-      Watch(id: '8', name: 'Calatrava', brand: 'Patek Philippe', price: 25999.0, category: 'Dress', description: 'Classic dress watch'),
-      
+      Watch(
+        id: '7',
+        name: 'Nautilus',
+        brand: 'Patek Philippe',
+        price: 29999.0,
+        category: 'Sport',
+        description: 'Luxury sports watch with iconic porthole design',
+      ),
+      Watch(
+        id: '8',
+        name: 'Calatrava',
+        brand: 'Patek Philippe',
+        price: 25999.0,
+        category: 'Dress',
+        description: 'Classic dress watch epitomizing elegance',
+      ),
+
       // Casio
-      Watch(id: '9', name: 'G-Shock', brand: 'Casio', price: 149.0, category: 'Digital', description: 'Rugged digital watch'),
-      Watch(id: '10', name: 'Edifice', brand: 'Casio', price: 299.0, category: 'Sport', description: 'Sporty chronograph'),
-      
+      Watch(
+        id: '9',
+        name: 'G-Shock',
+        brand: 'Casio',
+        price: 149.0,
+        category: 'Digital',
+        description: 'Rugged digital watch for extreme conditions',
+      ),
+      Watch(
+        id: '10',
+        name: 'Edifice',
+        brand: 'Casio',
+        price: 299.0,
+        category: 'Sport',
+        description: 'Sporty chronograph inspired by motor racing',
+      ),
+
       // Seiko
-      Watch(id: '11', name: '5 Sports', brand: 'Seiko', price: 299.0, category: 'Sport', description: 'Automatic sport watch'),
-      Watch(id: '12', name: 'Prospex', brand: 'Seiko', price: 599.0, category: 'Diving', description: 'Professional diving watch'),
-      
+      Watch(
+        id: '11',
+        name: '5 Sports',
+        brand: 'Seiko',
+        price: 299.0,
+        category: 'Sport',
+        description: 'Affordable automatic sport watch with reliability',
+      ),
+      Watch(
+        id: '12',
+        name: 'Prospex',
+        brand: 'Seiko',
+        price: 599.0,
+        category: 'Diving',
+        description: 'Professional diving watch with superior water resistance',
+      ),
+
       // Swatch
-      Watch(id: '13', name: 'Sistem51', brand: 'Swatch', price: 199.0, category: 'Casual', description: 'Automatic casual watch'),
-      Watch(id: '14', name: 'Irony', brand: 'Swatch', price: 149.0, category: 'Casual', description: 'Metal case watch'),
-      
+      Watch(
+        id: '13',
+        name: 'Sistem51',
+        brand: 'Swatch',
+        price: 199.0,
+        category: 'Casual',
+        description: 'Innovative automatic movement with 51 components',
+      ),
+      Watch(
+        id: '14',
+        name: 'Irony',
+        brand: 'Swatch',
+        price: 149.0,
+        category: 'Casual',
+        description: 'Metal case collection with style and durability',
+      ),
+
       // TAG Heuer
-      Watch(id: '15', name: 'Carrera', brand: 'TAG Heuer', price: 3999.0, category: 'Racing', description: 'Racing-inspired chronograph'),
+      Watch(
+        id: '15',
+        name: 'Carrera',
+        brand: 'TAG Heuer',
+        price: 3999.0,
+        category: 'Racing',
+        description: 'Racing-inspired chronograph with timeless design',
+      ),
     ]);
   }
 }

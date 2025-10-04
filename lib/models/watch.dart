@@ -17,6 +17,6 @@ class Watch {
   });
 
   String get displayPrice => '\$${price.toStringAsFixed(2)}';
-  
+
   String get displayName => '$brand $name';
 }

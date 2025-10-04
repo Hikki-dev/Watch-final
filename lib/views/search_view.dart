@@ -43,6 +43,17 @@ class _SearchViewState extends State<SearchView> {
               hintText: 'Search watches...',
               onChanged: _search,
               leading: Icon(Icons.search),
+              trailing: _searchController.text.isNotEmpty
+                  ? [
+                      IconButton(
+                        icon: Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _search('');
+                        },
+                      ),
+                    ]
+                  : null,
             ),
           ),
         ),
@@ -64,13 +75,17 @@ class _SearchViewState extends State<SearchView> {
           SizedBox(height: 12),
           Wrap(
             spacing: 8,
-            children: brands.map((brand) => ActionChip(
-              label: Text(brand),
-              onPressed: () {
-                _searchController.text = brand;
-                _search(brand);
-              },
-            )).toList(),
+            children: brands
+                .map(
+                  (brand) => ActionChip(
+                    label: Text(brand),
+                    onPressed: () {
+                      _searchController.text = brand;
+                      _search(brand);
+                    },
+                  ),
+                )
+                .toList(),
           ),
         ],
       ),
@@ -99,7 +114,10 @@ class _SearchViewState extends State<SearchView> {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => WatchDetailView(controller: widget.controller, watchId: watch.id),
+              builder: (context) => WatchDetailView(
+                controller: widget.controller,
+                watchId: watch.id,
+              ),
             ),
           ),
         );

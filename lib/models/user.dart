@@ -5,11 +5,7 @@ class User {
   final String email;
   final Set<String> _favorites = {};
 
-  User({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
+  User({required this.id, required this.name, required this.email});
 
   Set<String> get favorites => Set.unmodifiable(_favorites);
 

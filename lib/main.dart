@@ -80,7 +80,7 @@ class _AppRouterState extends State<AppRouter> {
   @override
   Widget build(BuildContext context) {
     if (showSplash) {
-      return SplashView();
+      return const SplashView();
     }
 
     return ListenableBuilder(

@@ -8,7 +8,11 @@ class BrandView extends StatelessWidget {
   final AppController controller;
   final String brandName;
 
-  const BrandView({super.key, required this.controller, required this.brandName});
+  const BrandView({
+    super.key,
+    required this.controller,
+    required this.brandName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,8 @@ class BrandView extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => WatchDetailView(controller: controller, watchId: watch.id),
+                builder: (context) =>
+                    WatchDetailView(controller: controller, watchId: watch.id),
               ),
             ),
           );

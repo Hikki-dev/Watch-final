@@ -17,29 +17,38 @@ class _CartViewState extends State<CartView> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Shopping Cart'),
-        actions: widget.controller.cart.isNotEmpty ? [
-          TextButton(
-            onPressed: () {
-              widget.controller.cart.clear();
-              setState(() {});
-            },
-            child: Text('Clear'),
-          ),
-        ] : null,
+        actions: widget.controller.cart.isNotEmpty
+            ? [
+                TextButton(
+                  onPressed: () {
+                    widget.controller.cart.clear();
+                    setState(() {});
+                  },
+                  child: Text('Clear'),
+                ),
+              ]
+            : null,
       ),
       body: ListenableBuilder(
         listenable: widget.controller.cart,
         builder: (context, child) {
           final cart = widget.controller.cart;
-          
+
           if (cart.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 80,
+                    color: Colors.grey,
+                  ),
                   SizedBox(height: 16),
-                  Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text(
+                    'Your cart is empty',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
                 ],
               ),
             );
@@ -57,28 +66,34 @@ class _CartViewState extends State<CartView> {
                       child: ListTile(
                         leading: Icon(Icons.watch, size: 40),
                         title: Text(item.watch.displayName),
-                        subtitle: Text('${item.watch.displayPrice} x ${item.quantity}'),
+                        subtitle: Text(
+                          '${item.watch.displayPrice} x ${item.quantity}',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
                               icon: Icon(Icons.remove),
-                              onPressed: () => widget.controller.updateCartQuantity(
-                                item.watch.id,
-                                item.quantity - 1,
-                              ),
+                              onPressed: () =>
+                                  widget.controller.updateCartQuantity(
+                                    item.watch.id,
+                                    item.quantity - 1,
+                                  ),
                             ),
                             Text('${item.quantity}'),
                             IconButton(
                               icon: Icon(Icons.add),
-                              onPressed: () => widget.controller.updateCartQuantity(
-                                item.watch.id,
-                                item.quantity + 1,
-                              ),
+                              onPressed: () =>
+                                  widget.controller.updateCartQuantity(
+                                    item.watch.id,
+                                    item.quantity + 1,
+                                  ),
                             ),
                             IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => widget.controller.removeFromCart(item.watch.id),
+                              onPressed: () => widget.controller.removeFromCart(
+                                item.watch.id,
+                              ),
                             ),
                           ],
                         ),
@@ -94,8 +109,20 @@ class _CartViewState extends State<CartView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Total:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                        Text(cart.displayTotal, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                        Text(
+                          'Total:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          cart.displayTotal,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     SizedBox(height: 16),

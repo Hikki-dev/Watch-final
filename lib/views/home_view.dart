@@ -39,6 +39,7 @@ class _HomeViewState extends State<HomeView> {
             destinations: [
               NavigationDestination(
                 icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
                 label: 'Home',
               ),
               NavigationDestination(icon: Icon(Icons.search), label: 'Search'),
@@ -48,10 +49,16 @@ class _HomeViewState extends State<HomeView> {
                   isLabelVisible: widget.controller.cart.isNotEmpty,
                   child: Icon(Icons.shopping_cart_outlined),
                 ),
+                selectedIcon: Badge(
+                  label: Text('${widget.controller.cart.itemCount}'),
+                  isLabelVisible: widget.controller.cart.isNotEmpty,
+                  child: Icon(Icons.shopping_cart),
+                ),
                 label: 'Cart',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outlined),
+                selectedIcon: Icon(Icons.person),
                 label: 'Profile',
               ),
             ],

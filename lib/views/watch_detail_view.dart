@@ -6,7 +6,11 @@ class WatchDetailView extends StatelessWidget {
   final AppController controller;
   final String watchId;
 
-  const WatchDetailView({super.key, required this.controller, required this.watchId});
+  const WatchDetailView({
+    super.key,
+    required this.controller,
+    required this.watchId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +57,7 @@ class WatchDetailView extends StatelessWidget {
               child: Icon(Icons.watch, size: 120, color: Colors.grey),
             ),
             SizedBox(height: 24),
-            
+
             // Watch Info
             Row(
               children: [
@@ -63,17 +67,30 @@ class WatchDetailView extends StatelessWidget {
                     color: Theme.of(context).colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Text(watch.brand, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    watch.brand,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 Spacer(),
-                Text(watch.displayPrice, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+                Text(
+                  watch.displayPrice,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
               ],
             ),
             SizedBox(height: 12),
-            
-            Text(watch.name, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+
+            Text(
+              watch.name,
+              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 8),
-            
+
             Container(
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -83,15 +100,24 @@ class WatchDetailView extends StatelessWidget {
               child: Text(watch.category, style: TextStyle(fontSize: 12)),
             ),
             SizedBox(height: 24),
-            
+
             // Description
-            Text('Description', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Description',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 8),
-            Text(watch.description, style: TextStyle(fontSize: 16, height: 1.5)),
+            Text(
+              watch.description,
+              style: TextStyle(fontSize: 16, height: 1.5),
+            ),
             SizedBox(height: 32),
-            
+
             // Specifications
-            Text('Specifications', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              'Specifications',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             SizedBox(height: 8),
             Card(
               child: Padding(

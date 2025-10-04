@@ -1,4 +1,6 @@
 // lib/models/cart_item.dart
+import 'watch.dart';
+
 class CartItem {
   final Watch watch;
   int quantity;

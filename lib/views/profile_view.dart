@@ -29,12 +29,7 @@ class ProfileView extends StatelessWidget {
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            _buildAccountTab(),
-            _buildFavoritesTab(),
-          ],
-        ),
+        body: TabBarView(children: [_buildAccountTab(), _buildFavoritesTab()]),
       ),
     );
   }
@@ -48,25 +43,38 @@ class ProfileView extends StatelessWidget {
           padding: EdgeInsets.all(16),
           child: Column(
             children: [
-              CircleAvatar(
-                radius: 50,
-                child: Icon(Icons.person, size: 50),
-              ),
+              CircleAvatar(radius: 50, child: Icon(Icons.person, size: 50)),
               SizedBox(height: 16),
-              Text(user.name, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              Text(user.email, style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text(
+                user.name,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                user.email,
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
               SizedBox(height: 32),
-              
+
               // Stats Cards
               Row(
                 children: [
-                  Expanded(child: _buildStatCard('Cart Items', '${controller.cart.itemCount}')),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Cart Items',
+                      '${controller.cart.itemCount}',
+                    ),
+                  ),
                   SizedBox(width: 16),
-                  Expanded(child: _buildStatCard('Favorites', '${controller.getFavoriteWatches().length}')),
+                  Expanded(
+                    child: _buildStatCard(
+                      'Favorites',
+                      '${controller.getFavoriteWatches().length}',
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 24),
-              
+
               // Action Cards
               Card(
                 child: ListTile(
@@ -104,7 +112,7 @@ class ProfileView extends StatelessWidget {
       listenable: controller,
       builder: (context, child) {
         final favorites = controller.getFavoriteWatches();
-        
+
         if (favorites.isEmpty) {
           return Center(
             child: Column(
@@ -112,7 +120,10 @@ class ProfileView extends StatelessWidget {
               children: [
                 Icon(Icons.favorite_border, size: 80, color: Colors.grey),
                 SizedBox(height: 16),
-                Text('No favorites yet', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                Text(
+                  'No favorites yet',
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                ),
               ],
             ),
           );
@@ -135,7 +146,10 @@ class ProfileView extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => WatchDetailView(controller: controller, watchId: watch.id),
+                  builder: (context) => WatchDetailView(
+                    controller: controller,
+                    watchId: watch.id,
+                  ),
                 ),
               ),
             );
@@ -151,7 +165,10 @@ class ProfileView extends StatelessWidget {
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
-            Text(value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             Text(title, style: TextStyle(fontSize: 12, color: Colors.grey)),
           ],
         ),
