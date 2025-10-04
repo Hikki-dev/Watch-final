@@ -1,8 +1,27 @@
-// lib/views/splash_view.dart
+// lib/views/splash_view.dart - SIMPLIFIED
 import 'package:flutter/material.dart';
+import '../controllers/app_controller.dart';
 
-class SplashView extends StatelessWidget {
-  const SplashView({super.key});
+class SplashView extends StatefulWidget {
+  final AppController controller;
+
+  const SplashView({super.key, required this.controller});
+
+  @override
+  State<SplashView> createState() => _SplashViewState();
+}
+
+class _SplashViewState extends State<SplashView> {
+  @override
+  void initState() {
+    super.initState();
+    // Wait 2 seconds then navigate to login
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

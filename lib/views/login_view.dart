@@ -1,7 +1,6 @@
-// lib/views/login_view.dart
+// lib/views/login_view.dart - SIMPLIFIED
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
-import 'register_view.dart';
 
 class LoginView extends StatefulWidget {
   final AppController controller;
@@ -13,7 +12,6 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _hidePassword = true;
@@ -26,9 +24,19 @@ class _LoginViewState extends State<LoginView> {
   }
 
   void _login() {
-    if (_formKey.currentState?.validate() ?? false) {
-      widget.controller.login(_emailController.text, _passwordController.text);
+    // Simple validation
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please fill all fields')));
+      return;
     }
+
+    // Login (accepts any credentials for demo)
+    widget.controller.login(_emailController.text, _passwordController.text);
+
+    // Navigate to home - use pushReplacementNamed to prevent going back
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override
@@ -37,68 +45,66 @@ class _LoginViewState extends State<LoginView> {
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Logo
-                Icon(Icons.watch, size: 80, color: Theme.of(context).colorScheme.primary),
-                SizedBox(height: 20),
-                Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
-                SizedBox(height: 40),
-                
-                // Email Field
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) => value?.isEmpty == true ? 'Enter email' : null,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.watch,
+                size: 80,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Welcome Back',
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              SizedBox(height: 40),
+
+              // Email
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  prefixIcon: Icon(Icons.email),
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 16),
-                
-                // Password Field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _hidePassword,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(_hidePassword ? Icons.visibility : Icons.visibility_off),
-                      onPressed: () => setState(() => _hidePassword = !_hidePassword),
+              ),
+              SizedBox(height: 16),
+
+              // Password
+              TextField(
+                controller: _passwordController,
+                obscureText: _hidePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _hidePassword ? Icons.visibility : Icons.visibility_off,
                     ),
-                    border: OutlineInputBorder(),
+                    onPressed: () =>
+                        setState(() => _hidePassword = !_hidePassword),
                   ),
-                  validator: (value) => value?.isEmpty == true ? 'Enter password' : null,
+                  border: OutlineInputBorder(),
                 ),
-                SizedBox(height: 24),
-                
-                // Login Button
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _login,
-                    child: Text('Login'),
-                  ),
-                ),
-                SizedBox(height: 16),
-                
-                // Register Link
-                TextButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RegisterView(controller: widget.controller),
-                    ),
-                  ),
-                  child: Text('Create Account'),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 24),
+
+              // Login Button
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(onPressed: _login, child: Text('Login')),
+              ),
+              SizedBox(height: 16),
+
+              // Register Link
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/register');
+                },
+                child: Text('Create Account'),
+              ),
+            ],
           ),
         ),
       ),

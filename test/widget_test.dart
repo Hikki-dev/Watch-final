@@ -1,6 +1,5 @@
-// test/widget_test.dart
+// test/widget_test.dart - FIXED
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:appcounter/main.dart';
 
 void main() {

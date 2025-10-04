@@ -1,9 +1,9 @@
-// lib/widgets/watch_card.dart - FIXED VERSION
+// lib/widgets/watch_card.dart - SIMPLIFIED
 import 'package:flutter/material.dart';
 import '../models/watch.dart';
 import '../controllers/app_controller.dart';
 
-class WatchCard extends StatelessWidget {
+class WatchCard extends StatefulWidget {
   final Watch watch;
   final AppController controller;
   final VoidCallback onTap;
@@ -16,13 +16,17 @@ class WatchCard extends StatelessWidget {
   });
 
   @override
+  State<WatchCard> createState() => _WatchCardState();
+}
+
+class _WatchCardState extends State<WatchCard> {
+  @override
   Widget build(BuildContext context) {
     return Card(
       child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        onTap: widget.onTap,
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -35,7 +39,22 @@ class WatchCard extends StatelessWidget {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.watch, size: 40, color: Colors.grey),
+                  child: widget.watch.imagePath != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            widget.watch.imagePath!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.watch,
+                                size: 40,
+                                color: Colors.grey,
+                              );
+                            },
+                          ),
+                        )
+                      : Icon(Icons.watch, size: 40, color: Colors.grey),
                 ),
               ),
               SizedBox(height: 8),
@@ -45,9 +64,8 @@ class WatchCard extends StatelessWidget {
                 flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Brand badge
+                    // Brand
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
@@ -55,91 +73,83 @@ class WatchCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        watch.brand,
+                        widget.watch.brand,
                         style: TextStyle(
-                          fontSize: 8,
+                          fontSize: 10,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     SizedBox(height: 4),
 
-                    // Watch name - CONSTRAINED
-                    Flexible(
-                      child: Text(
-                        watch.name,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 8,
-                        overflow: TextOverflow.ellipsis,
+                    // Name
+                    Text(
+                      widget.watch.name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     SizedBox(height: 4),
 
-                    // Price - SMALLER
+                    // Price
                     Text(
-                      watch.displayPrice,
+                      widget.watch.displayPrice,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    SizedBox(height: 4),
+                    Spacer(),
 
-                    // Buttons row - COMPACT
+                    // Buttons
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Add to cart button - SMALLER
                         Expanded(
                           child: SizedBox(
-                            height: 24,
+                            height: 28,
                             child: FilledButton(
                               onPressed: () {
-                                controller.addToCart(watch);
+                                widget.controller.addToCart(widget.watch);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      '${watch.displayName} added to cart',
-                                    ),
+                                    content: Text('Added to cart'),
                                     duration: Duration(seconds: 1),
                                   ),
                                 );
                               },
                               style: FilledButton.styleFrom(
                                 padding: EdgeInsets.zero,
-                                textStyle: TextStyle(fontSize: 10),
+                                textStyle: TextStyle(fontSize: 11),
                               ),
                               child: Text('Add'),
                             ),
                           ),
                         ),
                         SizedBox(width: 4),
-                        // Favorite button - SMALLER
-                        ListenableBuilder(
-                          listenable: controller,
-                          builder: (context, child) {
-                            final isFav = controller.isFavorite(watch.id);
-                            return SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: IconButton(
-                                onPressed: () =>
-                                    controller.toggleFavorite(watch.id),
-                                icon: Icon(
-                                  isFav
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isFav ? Colors.red : null,
-                                  size: 20,
-                                ),
-                                padding: EdgeInsets.zero,
-                              ),
-                            );
-                          },
+                        SizedBox(
+                          width: 28,
+                          height: 28,
+                          child: IconButton(
+                            onPressed: () {
+                              widget.controller.toggleFavorite(widget.watch.id);
+                              setState(() {});
+                            },
+                            icon: Icon(
+                              widget.controller.isFavorite(widget.watch.id)
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color:
+                                  widget.controller.isFavorite(widget.watch.id)
+                                  ? Colors.red
+                                  : null,
+                              size: 18,
+                            ),
+                            padding: EdgeInsets.zero,
+                          ),
                         ),
                       ],
                     ),
