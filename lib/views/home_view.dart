@@ -127,7 +127,7 @@ class BrandGridScreen extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: Image.asset(
-                        'lib/images/brands/${brand.toLowerCase().replaceAll(' ', '_')}.png',
+                        '..assets/images/brands/${brand.toLowerCase().replaceAll(' ', '_')}.png',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return Icon(Icons.watch, size: 60);

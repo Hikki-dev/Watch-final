@@ -1,4 +1,4 @@
-// lib/controllers/app_controller.dart - SIMPLIFIED
+// ..assets/controllers/app_controller.dart - SIMPLIFIED
 import 'package:flutter/foundation.dart';
 import '../models/watch.dart';
 import '../models/user.dart';
@@ -107,7 +107,7 @@ class AppController extends ChangeNotifier {
         price: 12999.0,
         category: 'Diving',
         description: 'Professional diving watch',
-        imagePath: 'lib/images/watches/rolex_submariner.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '2',
@@ -116,7 +116,7 @@ class AppController extends ChangeNotifier {
         price: 15999.0,
         category: 'Racing',
         description: 'Racing chronograph',
-        imagePath: 'lib/images/watches/rolex_daytona.png',
+        imagePath: 'assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '3',
@@ -125,7 +125,7 @@ class AppController extends ChangeNotifier {
         price: 14999.0,
         category: 'GMT',
         description: 'Dual timezone watch',
-        imagePath: 'lib/images/watches/rolex_gmt.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
 
       // Omega
@@ -136,7 +136,7 @@ class AppController extends ChangeNotifier {
         price: 5999.0,
         category: 'Space',
         description: 'The moonwatch',
-        imagePath: 'lib/images/watches/omega_speedmaster.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '5',
@@ -145,7 +145,7 @@ class AppController extends ChangeNotifier {
         price: 4599.0,
         category: 'Diving',
         description: 'Professional diving watch',
-        imagePath: 'lib/images/watches/omega_seamaster.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '6',
@@ -154,7 +154,7 @@ class AppController extends ChangeNotifier {
         price: 3999.0,
         category: 'Dress',
         description: 'Elegant timepiece',
-        imagePath: 'lib/images/watches/omega_constellation.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
 
       // Patek Philippe
@@ -165,7 +165,7 @@ class AppController extends ChangeNotifier {
         price: 29999.0,
         category: 'Sport',
         description: 'Luxury sports watch',
-        imagePath: 'lib/images/watches/patek_nautilus.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '8',
@@ -174,7 +174,7 @@ class AppController extends ChangeNotifier {
         price: 25999.0,
         category: 'Dress',
         description: 'Classic dress watch',
-        imagePath: 'lib/images/watches/patek_calatrava.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
 
       // Casio
@@ -185,7 +185,7 @@ class AppController extends ChangeNotifier {
         price: 149.0,
         category: 'Digital',
         description: 'Rugged digital watch',
-        imagePath: 'lib/images/watches/casio_gshock.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '10',
@@ -194,7 +194,7 @@ class AppController extends ChangeNotifier {
         price: 299.0,
         category: 'Sport',
         description: 'Sporty chronograph',
-        imagePath: 'lib/images/watches/casio_edifice.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
 
       // Seiko
@@ -205,7 +205,7 @@ class AppController extends ChangeNotifier {
         price: 299.0,
         category: 'Sport',
         description: 'Affordable automatic',
-        imagePath: 'lib/images/watches/seiko_5sports.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
       Watch(
         id: '12',
@@ -214,7 +214,7 @@ class AppController extends ChangeNotifier {
         price: 599.0,
         category: 'Diving',
         description: 'Professional diving watch',
-        imagePath: 'lib/images/watches/seiko_prospex.png',
+        imagePath: '..assets/images/watches/rolex-submariner.jpg',
       ),
 
       // TAG Heuer
@@ -225,7 +225,7 @@ class AppController extends ChangeNotifier {
         price: 3999.0,
         category: 'Racing',
         description: 'Racing chronograph',
-        imagePath: 'lib/images/watches/tag_carrera.png',
+        imagePath: '..assets/images/watches/tag_carrera.png',
       ),
       Watch(
         id: '14',
@@ -234,7 +234,7 @@ class AppController extends ChangeNotifier {
         price: 5999.0,
         category: 'Racing',
         description: 'Iconic square watch',
-        imagePath: 'lib/images/watches/tag_monaco.png',
+        imagePath: '..assets/images/watches/tag_monaco.png',
       ),
 
       // Citizen
@@ -245,7 +245,7 @@ class AppController extends ChangeNotifier {
         price: 399.0,
         category: 'Casual',
         description: 'Solar-powered watch',
-        imagePath: 'lib/images/watches/citizen_ecodrive.png',
+        imagePath: '..assets/images/watches/citizen_ecodrive.png',
       ),
     ]);
   }

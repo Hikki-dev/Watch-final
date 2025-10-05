@@ -1,4 +1,4 @@
-// lib/models/watch.dart - WITH IMAGES
+// lib/models/watch.dart
 class Watch {
   final String id;
   final String name;
@@ -6,7 +6,7 @@ class Watch {
   final double price;
   final String category;
   final String description;
-  final String? imagePath; // Add this field
+  final String? imagePath; // ADD THIS
 
   Watch({
     required this.id,
@@ -15,9 +15,10 @@ class Watch {
     required this.price,
     required this.category,
     required this.description,
-    this.imagePath, // Make it optional for backwards compatibility
+    this.imagePath,
   });
 
   String get displayPrice => '\$${price.toStringAsFixed(2)}';
   String get displayName => '$brand $name';
+  bool get hasImage => imagePath != null && imagePath!.isNotEmpty; // ADD THIS
 }

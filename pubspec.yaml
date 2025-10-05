@@ -59,12 +59,11 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-  - lib/images/logo.png
-  - lib/images/watch1.jpg
-  - lib/images/watch2.jpg
-  - lib/images/watch3.jpg
-  - lib/images/watch4.jpg
+
   - assets/images/brands/
+  - assets/images/watches/
+  - assets/images/
+  - assets/images/watches/ap-royal-oak-1.jpg
 
 
   #   - images/a_dot_ham.jpeg
