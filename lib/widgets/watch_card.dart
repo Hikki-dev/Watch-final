@@ -1,4 +1,4 @@
-// lib/widgets/watch_card.dart - SIMPLIFIED
+// lib/widgets/watch_card.dart - CLEAN VERSION
 import 'package:flutter/material.dart';
 import '../models/watch.dart';
 import '../controllers/app_controller.dart';
@@ -30,7 +30,7 @@ class _WatchCardState extends State<WatchCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image placeholder
+              // Image
               Expanded(
                 flex: 3,
                 child: Container(
@@ -39,22 +39,23 @@ class _WatchCardState extends State<WatchCard> {
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: widget.watch.imagePath != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.asset(
-                            widget.watch.imagePath!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(
-                                Icons.watch,
-                                size: 40,
-                                color: Colors.grey,
-                              );
-                            },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.asset(
+                      widget.watch.imagePath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint('❌ Image failed: ${widget.watch.imagePath}');
+                        return Center(
+                          child: Icon(
+                            Icons.watch,
+                            size: 40,
+                            color: Colors.grey,
                           ),
-                        )
-                      : Icon(Icons.watch, size: 40, color: Colors.grey),
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
               SizedBox(height: 8),
@@ -65,7 +66,7 @@ class _WatchCardState extends State<WatchCard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Brand
+                    // Brand chip
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
@@ -105,7 +106,7 @@ class _WatchCardState extends State<WatchCard> {
                     ),
                     Spacer(),
 
-                    // Buttons
+                    // Action buttons
                     Row(
                       children: [
                         Expanded(

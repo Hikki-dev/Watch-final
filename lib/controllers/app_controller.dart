@@ -1,4 +1,4 @@
-// ..assets/controllers/app_controller.dart - SIMPLIFIED
+// lib/controllers/app_controller.dart - FIXED to match your actual files
 import 'package:flutter/foundation.dart';
 import '../models/watch.dart';
 import '../models/user.dart';
@@ -9,12 +9,10 @@ class AppController extends ChangeNotifier {
   final Cart cart = Cart();
   final List<Watch> allWatches = [];
 
-  // Initialize with sample data
   void initialize() {
     _loadSampleWatches();
   }
 
-  // Simple login - accepts any credentials
   void login(String email, String password) {
     currentUser = User(
       id: '1',
@@ -30,17 +28,14 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Get unique brands
   List<String> getBrands() {
     return allWatches.map((w) => w.brand).toSet().toList()..sort();
   }
 
-  // Get watches by brand
   List<Watch> getWatchesByBrand(String brand) {
     return allWatches.where((w) => w.brand == brand).toList();
   }
 
-  // Search watches
   List<Watch> searchWatches(String query) {
     if (query.isEmpty) return [];
     final q = query.toLowerCase();
@@ -54,7 +49,6 @@ class AppController extends ChangeNotifier {
         .toList();
   }
 
-  // Get watch by ID
   Watch? getWatchById(String id) {
     try {
       return allWatches.firstWhere((w) => w.id == id);
@@ -63,7 +57,6 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  // Cart operations
   void addToCart(Watch watch) {
     cart.addWatch(watch);
     notifyListeners();
@@ -79,7 +72,6 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Favorites
   void toggleFavorite(String watchId) {
     if (currentUser != null) {
       currentUser!.toggleFavorite(watchId);
@@ -96,156 +88,215 @@ class AppController extends ChangeNotifier {
     return allWatches.where((w) => currentUser!.isFavorite(w.id)).toList();
   }
 
-  // Load sample data
   void _loadSampleWatches() {
     allWatches.addAll([
-      // Rolex
+      // Audemars Piguet (AP)
       Watch(
         id: '1',
-        name: 'Submariner',
-        brand: 'Rolex',
-        price: 12999.0,
-        category: 'Diving',
-        description: 'Professional diving watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        name: 'Royal Oak',
+        brand: 'Audemars Piguet',
+        price: 85000.0,
+        category: 'Luxury Sport',
+        description: 'Iconic octagonal bezel luxury sports watch',
+        imagePath: 'assets/images/watches/ap-royal-oak-1.jpg',
       ),
       Watch(
         id: '2',
-        name: 'Daytona',
-        brand: 'Rolex',
-        price: 15999.0,
-        category: 'Racing',
-        description: 'Racing chronograph',
-        imagePath: 'assets/images/watches/rolex-submariner.jpg',
-      ),
-      Watch(
-        id: '3',
-        name: 'GMT-Master II',
-        brand: 'Rolex',
-        price: 14999.0,
-        category: 'GMT',
-        description: 'Dual timezone watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        name: 'Royal Oak Offshore',
+        brand: 'Audemars Piguet',
+        price: 55000.0,
+        category: 'Luxury Sport',
+        description: 'Bold and oversized luxury chronograph',
+        imagePath: 'assets/images/watches/ap-royal-oak-2.jpg',
       ),
 
       // Omega
       Watch(
+        id: '3',
+        name: 'Seamaster',
+        brand: 'Omega',
+        price: 5500.0,
+        category: 'Diving',
+        description: 'Professional diving watch',
+        imagePath: 'assets/images/watches/omega-seamaster-1.jpg',
+      ),
+      Watch(
         id: '4',
         name: 'Speedmaster',
         brand: 'Omega',
-        price: 5999.0,
-        category: 'Space',
-        description: 'The moonwatch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        price: 6500.0,
+        category: 'Chronograph',
+        description: 'The legendary moonwatch',
+        imagePath: 'assets/images/watches/omega-speedmaster-1.jpg',
       ),
       Watch(
         id: '5',
-        name: 'Seamaster',
+        name: 'Speedmaster Pro',
         brand: 'Omega',
-        price: 4599.0,
-        category: 'Diving',
-        description: 'Professional diving watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
-      ),
-      Watch(
-        id: '6',
-        name: 'Constellation',
-        brand: 'Omega',
-        price: 3999.0,
-        category: 'Dress',
-        description: 'Elegant timepiece',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        price: 7200.0,
+        category: 'Chronograph',
+        description: 'Professional moonwatch edition',
+        imagePath: 'assets/images/watches/omega-speedmaster-2.jpg',
       ),
 
       // Patek Philippe
       Watch(
+        id: '6',
+        name: 'Calatrava',
+        brand: 'Patek Philippe',
+        price: 32000.0,
+        category: 'Dress',
+        description: 'Classic dress watch excellence',
+        imagePath: 'assets/images/watches/patek-calatrava-1.jpg',
+      ),
+      Watch(
         id: '7',
         name: 'Nautilus',
         brand: 'Patek Philippe',
-        price: 29999.0,
-        category: 'Sport',
-        description: 'Luxury sports watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        price: 85000.0,
+        category: 'Luxury Sport',
+        description: 'Iconic porthole design luxury sports watch',
+        imagePath: 'assets/images/watches/patek-nautilus-1.jpg',
       ),
       Watch(
         id: '8',
-        name: 'Calatrava',
+        name: 'Nautilus Blue',
         brand: 'Patek Philippe',
-        price: 25999.0,
-        category: 'Dress',
-        description: 'Classic dress watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        price: 90000.0,
+        category: 'Luxury Sport',
+        description: 'Blue dial Nautilus variant',
+        imagePath: 'assets/images/watches/patek-nautilus-2.jpg',
+      ),
+
+      // Richard Mille
+      Watch(
+        id: '9',
+        name: 'RM 011',
+        brand: 'Richard Mille',
+        price: 150000.0,
+        category: 'Luxury Sport',
+        description: 'Ultra-light titanium sports chronograph',
+        imagePath: 'assets/images/watches/richard-mille-1.jpg',
+      ),
+      Watch(
+        id: '10',
+        name: 'RM 027',
+        brand: 'Richard Mille',
+        price: 750000.0,
+        category: 'Luxury Sport',
+        description: 'Rafael Nadal edition tourbillon',
+        imagePath: 'assets/images/watches/richard-mille-2.jpg',
+      ),
+
+      // Rolex
+      Watch(
+        id: '11',
+        name: 'GMT-Master II',
+        brand: 'Rolex',
+        price: 15000.0,
+        category: 'GMT',
+        description: 'Dual timezone professional watch',
+        imagePath: 'assets/images/watches/rolex-gmt-1.jpg',
+      ),
+      Watch(
+        id: '12',
+        name: 'Submariner',
+        brand: 'Rolex',
+        price: 13500.0,
+        category: 'Diving',
+        description: 'Iconic professional diving watch',
+        imagePath: 'assets/images/watches/rolex-submariner-1.jpg',
+      ),
+      Watch(
+        id: '13',
+        name: 'Submariner Date',
+        brand: 'Rolex',
+        price: 14200.0,
+        category: 'Diving',
+        description: 'Professional diving watch with date',
+        imagePath: 'assets/images/watches/rolex-submariner-2.jpg',
+      ),
+
+      // Swatch
+      Watch(
+        id: '14',
+        name: 'Big Bold Chrono',
+        brand: 'Swatch',
+        price: 120.0,
+        category: 'Fashion',
+        description: 'Bold chronograph with vibrant colors',
+        imagePath: 'assets/images/watches/swatch-big-bold-chrono-1.jpg',
+      ),
+      Watch(
+        id: '15',
+        name: 'Swatch Scubaqua',
+        brand: 'Swatch',
+        price: 65.0,
+        category: 'Fashion',
+        description: 'Transparent colorful diving watch',
+        imagePath: 'assets/images/watches/swatch-scubaqua.jpg',
+      ),
+      Watch(
+        id: '16',
+        name: 'Sistem51 Irony',
+        brand: 'Swatch',
+        price: 150.0,
+        category: 'Automatic',
+        description: 'Mechanical automatic with see-through case',
+        imagePath: 'assets/images/watches/swatch-sistem51-irony-1.jpg',
+      ),
+      Watch(
+        id: '17',
+        name: 'Skin Classic',
+        brand: 'Swatch',
+        price: 85.0,
+        category: 'Fashion',
+        description: 'Ultra-thin minimalist design',
+        imagePath: 'assets/images/watches/swatch-skin-classic-1.jpg',
       ),
 
       // Casio
       Watch(
-        id: '9',
+        id: '18',
         name: 'G-Shock',
         brand: 'Casio',
         price: 149.0,
-        category: 'Digital',
-        description: 'Rugged digital watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
-      ),
-      Watch(
-        id: '10',
-        name: 'Edifice',
-        brand: 'Casio',
-        price: 299.0,
-        category: 'Sport',
-        description: 'Sporty chronograph',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        category: 'Digital Sport',
+        description: 'Rugged shock-resistant digital watch',
+        imagePath: 'assets/images/watches/casio-gshock.jpg',
       ),
 
       // Seiko
       Watch(
-        id: '11',
+        id: '19',
         name: '5 Sports',
         brand: 'Seiko',
         price: 299.0,
-        category: 'Sport',
-        description: 'Affordable automatic',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
-      ),
-      Watch(
-        id: '12',
-        name: 'Prospex',
-        brand: 'Seiko',
-        price: 599.0,
-        category: 'Diving',
-        description: 'Professional diving watch',
-        imagePath: '..assets/images/watches/rolex-submariner.jpg',
+        category: 'Automatic',
+        description: 'Affordable automatic sports watch',
+        imagePath: 'assets/images/watches/seiko-watch.jpg',
       ),
 
       // TAG Heuer
       Watch(
-        id: '13',
+        id: '20',
         name: 'Carrera',
         brand: 'TAG Heuer',
         price: 3999.0,
-        category: 'Racing',
-        description: 'Racing chronograph',
-        imagePath: '..assets/images/watches/tag_carrera.png',
-      ),
-      Watch(
-        id: '14',
-        name: 'Monaco',
-        brand: 'TAG Heuer',
-        price: 5999.0,
-        category: 'Racing',
-        description: 'Iconic square watch',
-        imagePath: '..assets/images/watches/tag_monaco.png',
+        category: 'Chronograph',
+        description: 'Racing-inspired chronograph',
+        imagePath: 'assets/images/watches/tag-heur-watch.jpg',
       ),
 
       // Citizen
       Watch(
-        id: '15',
+        id: '21',
         name: 'Eco-Drive',
         brand: 'Citizen',
         price: 399.0,
-        category: 'Casual',
-        description: 'Solar-powered watch',
-        imagePath: '..assets/images/watches/citizen_ecodrive.png',
+        category: 'Solar',
+        description: 'Solar-powered quartz watch',
+        imagePath: 'assets/images/watches/citizen-watch.jpg',
       ),
     ]);
   }

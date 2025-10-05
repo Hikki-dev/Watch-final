@@ -1,6 +1,7 @@
-// lib/views/home_view.dart - SIMPLIFIED with responsive layout
+// lib/views/home_view.dart - FIXED to use Brand objects
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
+import '../models/brand.dart'; // IMPORT THIS
 import 'search_view.dart';
 import 'cart_view.dart';
 import 'profile_view.dart';
@@ -81,7 +82,7 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-// Brand Grid Screen
+// Brand Grid Screen - FIXED
 class BrandGridScreen extends StatelessWidget {
   final AppController controller;
 
@@ -89,7 +90,7 @@ class BrandGridScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final brands = controller.getBrands();
+    // Use the brands list from brand.dart instead of controller.getBrands()
     final orientation = MediaQuery.of(context).orientation;
     final width = MediaQuery.of(context).size.width;
 
@@ -110,26 +111,30 @@ class BrandGridScreen extends StatelessWidget {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: brands.length,
+        itemCount: brands.length, // Use brands constant
         itemBuilder: (context, index) {
-          final brand = brands[index];
+          final brand = brands[index]; // This is a Brand object now
           return Card(
             child: InkWell(
               onTap: () {
-                // VANILLA NAVIGATION
-                Navigator.pushNamed(context, '/brand', arguments: brand);
+                // Pass the brand NAME to the route
+                Navigator.pushNamed(context, '/brand', arguments: brand.name);
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Brand logo image
+                  // Brand logo image - Use the logoPath from Brand object
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.all(16),
                       child: Image.asset(
-                        '..assets/images/brands/${brand.toLowerCase().replaceAll(' ', '_')}.png',
+                        brand
+                            .logoPath, // THIS IS THE FIX - use the actual logoPath
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
+                          debugPrint('❌ Failed to load: ${brand.logoPath}');
+                          debugPrint('Brand: ${brand.name}');
+                          debugPrint('Error: $error');
                           return Icon(Icons.watch, size: 60);
                         },
                       ),
@@ -137,8 +142,9 @@ class BrandGridScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    brand,
+                    brand.name,
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
                   SizedBox(height: 8),
                 ],

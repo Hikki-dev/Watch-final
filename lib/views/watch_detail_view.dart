@@ -75,7 +75,28 @@ class WatchDetailView extends StatelessWidget {
               color: Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(Icons.watch, size: 120, color: Colors.grey),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: watch.imagePath != null && watch.imagePath!.isNotEmpty
+                  ? Image.asset(
+                      watch.imagePath!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint('❌ Detail view failed: ${watch.imagePath}');
+                        debugPrint('Error: $error');
+                        return Center(
+                          child: Icon(
+                            Icons.watch,
+                            size: 120,
+                            color: Colors.grey,
+                          ),
+                        );
+                      },
+                    )
+                  : Center(
+                      child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                    ),
+            ),
           ),
           SizedBox(height: 24),
 
@@ -125,7 +146,30 @@ class WatchDetailView extends StatelessWidget {
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(Icons.watch, size: 120, color: Colors.grey),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: watch.imagePath != null && watch.imagePath!.isNotEmpty
+                    ? Image.asset(
+                        watch.imagePath!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          debugPrint(
+                            '❌ Landscape view failed: ${watch.imagePath}',
+                          );
+                          debugPrint('Error: $error');
+                          return Center(
+                            child: Icon(
+                              Icons.watch,
+                              size: 120,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                      ),
+              ),
             ),
           ),
         ),

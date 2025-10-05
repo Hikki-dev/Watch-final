@@ -1,4 +1,4 @@
-// ../assets/models/brand.dart - WITH IMAGES
+// lib/models/brand.dart - FIXED TO MATCH YOUR ACTUAL FILES
 class Brand {
   final String id;
   final String name;
@@ -7,41 +7,40 @@ class Brand {
   const Brand({required this.id, required this.name, required this.logoPath});
 }
 
-// Brand data with image paths
+// Brand data with CORRECTED image paths matching your files
 const brands = <Brand>[
   Brand(
-    id: 'rolex',
-    name: 'Rolex',
-    logoPath: '../assets/images/brands/rolex.png',
+    id: 'ap',
+    name: 'Audemars Piguet',
+    logoPath: 'assets/images/brands/ap.png',
   ),
+  Brand(id: 'casio', name: 'Casio', logoPath: 'assets/images/brands/casio.png'),
   Brand(
-    id: 'omega',
-    name: 'Omega',
-    logoPath: '../assets/images/brands/omega.png',
+    id: 'citizen',
+    name: 'Citizen',
+    logoPath: 'assets/images/brands/citizen.png',
   ),
+  Brand(id: 'omega', name: 'Omega', logoPath: 'assets/images/brands/omega.png'),
   Brand(
     id: 'patek',
     name: 'Patek Philippe',
-    logoPath: '../assets/images/brands/patek.png',
+    logoPath: 'assets/images/brands/patek.png', // FIXED: no underscore
   ),
   Brand(
-    id: 'casio',
-    name: 'Casio',
-    logoPath: '../assets/images/brands/casio.png',
+    id: 'richard_mille',
+    name: 'Richard Mille',
+    logoPath: 'assets/images/brands/richard_mille.png',
   ),
+  Brand(id: 'rolex', name: 'Rolex', logoPath: 'assets/images/brands/rolex.png'),
+  Brand(id: 'seiko', name: 'Seiko', logoPath: 'assets/images/brands/seiko.png'),
   Brand(
-    id: 'seiko',
-    name: 'Seiko',
-    logoPath: '../assets/images/brands/seiko.png',
+    id: 'swatch',
+    name: 'Swatch',
+    logoPath: 'assets/images/brands/swatch.png',
   ),
   Brand(
     id: 'tag_heuer',
     name: 'TAG Heuer',
-    logoPath: '../assets/images/brands/tag_heuer.png',
-  ),
-  Brand(
-    id: 'citizen',
-    name: 'Citizen',
-    logoPath: '../assets/images/brands/citizen.png',
+    logoPath: 'assets/images/brands/tag_heuer.png',
   ),
 ];
