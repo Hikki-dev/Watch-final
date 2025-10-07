@@ -1,4 +1,4 @@
-// lib/views/register_view.dart - SIMPLIFIED with 12 field types
+// lib/views/register_view.dart
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
 

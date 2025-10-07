@@ -1,4 +1,4 @@
-// lib/widgets/watch_card.dart - CLEAN VERSION
+// lib/widgets/watch_card.dart
 import 'package:flutter/material.dart';
 import '../models/watch.dart';
 import '../controllers/app_controller.dart';

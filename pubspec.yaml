@@ -1,7 +1,6 @@
 name: appcounter
 description: "A new Flutter project."
 publish_to: 'none'
-
 version: 1.0.0+1
 
 environment:
@@ -19,9 +18,18 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-
-  # Assets - simplified and clean
   assets:
-    - assets/images/
-    - assets/images/brands/
+    # Brand logos
+    - assets/images/brands/ap.png
+    - assets/images/brands/casio.png
+    - assets/images/brands/citizen.png
+    - assets/images/brands/omega.png
+    - assets/images/brands/patek.png
+    - assets/images/brands/richard_mille.png
+    - assets/images/brands/rolex.png
+    - assets/images/brands/seiko.png
+    - assets/images/brands/swatch.png
+    - assets/images/brands/tag_heuer.png
+    
+    # Watch images
     - assets/images/watches/

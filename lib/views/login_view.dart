@@ -1,4 +1,4 @@
-// lib/views/login_view.dart - SIMPLIFIED
+// lib/views/login_view.dart
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
 

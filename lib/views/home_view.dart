@@ -1,6 +1,7 @@
-// lib/views/home_view.dart - WITH THEME SUPPORT
+// lib/views/home_view.dart
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
+import '../models/brand.dart';
 import 'search_view.dart';
 import 'cart_view.dart';
 import 'profile_view.dart';
@@ -98,7 +99,7 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-// Brand Grid Screen
+// Brand Grid Screen - FIXED
 class BrandGridScreen extends StatelessWidget {
   final AppController controller;
 
@@ -106,8 +107,7 @@ class BrandGridScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get brands from controller - these will match the watch brands exactly
-    final brands = controller.getBrands();
+    // Use the brands constant from brand.dart
     final orientation = MediaQuery.of(context).orientation;
     final width = MediaQuery.of(context).size.width;
 
@@ -128,34 +128,29 @@ class BrandGridScreen extends StatelessWidget {
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
-        itemCount: brands.length,
+        itemCount: brands.length, 
         itemBuilder: (context, index) {
           final brand = brands[index];
-          // Create a filename-safe version of the brand name
-          final brandFileName = brand
-              .toLowerCase()
-              .replaceAll(' ', '_')
-              .replaceAll('é', 'e'); // Handle special characters
-
           return Card(
             child: InkWell(
               onTap: () {
-                // VANILLA NAVIGATION with exact brand name
-                Navigator.pushNamed(context, '/brand', arguments: brand);
+                Navigator.pushNamed(context, '/brand', arguments: brand.name);
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Brand logo image
+                  // Brand logo image 
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Hero(
-                        tag: 'brand-$brand',
+                        tag: 'brand-${brand.name}',
                         child: Image.asset(
-                          'assets/images/brands/$brandFileName.png',
+                          brand.logoPath, 
                           fit: BoxFit.contain,
                           errorBuilder: (context, error, stackTrace) {
+                            debugPrint('❌ Failed to load: ${brand.logoPath}');
+                            debugPrint('Brand: ${brand.name}');
                             return const Icon(Icons.watch, size: 60);
                           },
                         ),
@@ -164,7 +159,7 @@ class BrandGridScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    brand,
+                    brand.name,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

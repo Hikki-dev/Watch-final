@@ -63,7 +63,7 @@ class ProfileView extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
-                // Stats - Clickable and Auto-updating
+                // Stats
                 Row(
                   children: [
                     Expanded(
