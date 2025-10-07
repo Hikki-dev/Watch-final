@@ -1,4 +1,4 @@
-// lib/models/brand.dart - FIXED TO MATCH YOUR ACTUAL FILES
+// lib/models/brand.dart
 class Brand {
   final String id;
   final String name;
@@ -7,7 +7,7 @@ class Brand {
   const Brand({required this.id, required this.name, required this.logoPath});
 }
 
-// Brand data with CORRECTED image paths matching your files
+// Brand data with image paths
 const brands = <Brand>[
   Brand(
     id: 'ap',
@@ -24,7 +24,7 @@ const brands = <Brand>[
   Brand(
     id: 'patek',
     name: 'Patek Philippe',
-    logoPath: 'assets/images/brands/patek.png', // FIXED: no underscore
+    logoPath: 'assets/images/brands/patek.png',
   ),
   Brand(
     id: 'richard_mille',

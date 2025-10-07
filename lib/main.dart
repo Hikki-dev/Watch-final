@@ -1,4 +1,4 @@
-// lib/main.dart - SIMPLIFIED VERSION
+// lib/main.dart - WITH THEME SUPPORT
 import 'package:flutter/material.dart';
 import 'views/splash_view.dart';
 import 'views/login_view.dart';
@@ -12,15 +12,31 @@ void main() {
   runApp(WatchApp());
 }
 
-class WatchApp extends StatelessWidget {
-  final AppController controller = AppController();
+class WatchApp extends StatefulWidget {
+  const WatchApp({super.key});
 
-  WatchApp({super.key});
+  @override
+  State<WatchApp> createState() => _WatchAppState();
+}
+
+class _WatchAppState extends State<WatchApp> {
+  final AppController controller = AppController();
+  ThemeMode _themeMode = ThemeMode.system;
+
+  @override
+  void initState() {
+    super.initState();
+    controller.initialize();
+  }
+
+  void _setThemeMode(ThemeMode mode) {
+    setState(() {
+      _themeMode = mode;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.initialize();
-
     return MaterialApp(
       title: 'Watch Store',
       debugShowCheckedModeBanner: false,
@@ -38,7 +54,7 @@ class WatchApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      themeMode: ThemeMode.system,
+      themeMode: _themeMode,
       
       // VANILLA ROUTING - Named routes
       initialRoute: '/splash',
@@ -46,7 +62,11 @@ class WatchApp extends StatelessWidget {
         '/splash': (context) => SplashView(controller: controller),
         '/login': (context) => LoginView(controller: controller),
         '/register': (context) => RegisterView(controller: controller),
-        '/home': (context) => HomeView(controller: controller),
+        '/home': (context) => HomeView(
+          controller: controller,
+          onThemeChanged: _setThemeMode,
+          currentThemeMode: _themeMode,
+        ),
       },
       
       // For routes that need parameters

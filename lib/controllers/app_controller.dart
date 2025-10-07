@@ -1,4 +1,4 @@
-// lib/controllers/app_controller.dart - FIXED to match your actual files
+// lib/controllers/app_controller.dart 
 import 'package:flutter/foundation.dart';
 import '../models/watch.dart';
 import '../models/user.dart';
@@ -9,10 +9,12 @@ class AppController extends ChangeNotifier {
   final Cart cart = Cart();
   final List<Watch> allWatches = [];
 
+  // Initialize with sample data
   void initialize() {
     _loadSampleWatches();
   }
 
+  // Simple login - accepts any credentials
   void login(String email, String password) {
     currentUser = User(
       id: '1',
@@ -28,14 +30,31 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Get all brands 
   List<String> getBrands() {
-    return allWatches.map((w) => w.brand).toSet().toList()..sort();
+    // Return all brand names from the brands list
+    return [
+      'Audemars Piguet',
+      'Casio',
+      'Citizen',
+      'Omega',
+      'Patek Philippe',
+      'Richard Mille',
+      'Rolex',
+      'Seiko',
+      'Swatch',
+      'TAG Heuer',
+    ];
   }
 
+  // Get watches by brand - FIXED to handle case sensitivity
   List<Watch> getWatchesByBrand(String brand) {
-    return allWatches.where((w) => w.brand == brand).toList();
+    return allWatches
+        .where((w) => w.brand.toLowerCase() == brand.toLowerCase())
+        .toList();
   }
 
+  // Search watches
   List<Watch> searchWatches(String query) {
     if (query.isEmpty) return [];
     final q = query.toLowerCase();
@@ -49,6 +68,7 @@ class AppController extends ChangeNotifier {
         .toList();
   }
 
+  // Get watch by ID
   Watch? getWatchById(String id) {
     try {
       return allWatches.firstWhere((w) => w.id == id);
@@ -57,6 +77,7 @@ class AppController extends ChangeNotifier {
     }
   }
 
+  // Cart operations
   void addToCart(Watch watch) {
     cart.addWatch(watch);
     notifyListeners();
@@ -72,6 +93,7 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Favorites
   void toggleFavorite(String watchId) {
     if (currentUser != null) {
       currentUser!.toggleFavorite(watchId);
