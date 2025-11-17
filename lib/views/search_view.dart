@@ -1,3 +1,4 @@
+// lib/views/search_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
@@ -13,10 +14,11 @@ class SearchView extends StatefulWidget {
 
 class _SearchViewState extends State<SearchView> {
   final _searchController = TextEditingController();
-  List _results = [];
+  List _results = []; // This is local state, so it's fine
 
-  // 3. Get controller from Provider inside methods
   void _search(String query) {
+    // 3. Get controller from Provider using .read()
+    // We use .read() here because it's in a callback
     final controller = context.read<AppController>();
     setState(() {
       _results = controller.searchWatches(query);
@@ -25,9 +27,6 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    // 4. Get controller for the build method
-    final controller = context.read<AppController>();
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Search'),
@@ -59,9 +58,9 @@ class _SearchViewState extends State<SearchView> {
                 final watch = _results[index];
                 return WatchCard(
                   watch: watch,
-                  // 5. Remove controller from WatchCard
+                  // 4. Remove controller from WatchCard constructor
                   onTap: () {
-                    // WatchDetailView will get controller from Provider
+                    // WatchDetailView will get its controller from Provider
                     Navigator.pushNamed(context, '/watch', arguments: watch.id);
                   },
                 );

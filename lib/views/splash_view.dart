@@ -1,11 +1,10 @@
 // lib/views/splash_view.dart
 import 'package:flutter/material.dart';
-import '../controllers/app_controller.dart';
+// import '../controllers/app_controller.dart'; // <-- 1. REMOVE this import
 
 class SplashView extends StatefulWidget {
-  final AppController controller;
-
-  const SplashView({super.key, required this.controller});
+  // 2. REMOVE controller from constructor
+  const SplashView({super.key});
 
   @override
   State<SplashView> createState() => _SplashViewState();

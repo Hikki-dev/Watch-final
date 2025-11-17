@@ -1,32 +1,34 @@
 // lib/views/login_view.dart
 import 'package:flutter/material.dart';
-import '../controllers/app_controller.dart';
 import 'package:provider/provider.dart';
+import '../controllers/app_controller.dart';
 import '../services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
-  final AppController controller;
-  const LoginView({super.key, required this.controller});
+  // 1. REMOVE controller from constructor
+  const LoginView({super.key});
 
   @override
   State<LoginView> createState() => _LoginViewState();
 }
 
 class _LoginViewState extends State<LoginView> {
-  // ... (controllers) ...
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _hidePassword = true;
 
   @override
   void dispose() {
-    // ...
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
   void _login() async {
+    // 2. Get services from Provider
+    final authService = context.read<AuthService>();
+    final controller = context.read<AppController>();
+
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
@@ -34,16 +36,19 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    final authService = context.read<AuthService>();
     final userCredential = await authService.signInWithEmail(
       email: _emailController.text,
       password: _passwordController.text,
     );
 
-    // --- FIX: Add mounted checks ---
     if (!context.mounted) return;
 
     if (userCredential != null) {
+      // 3. Set the user's name on login
+      controller.setUserFullName(
+        userCredential.user?.displayName ??
+            _emailController.text.split('@')[0].toUpperCase(),
+      );
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -54,7 +59,6 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (rest of build method) ...
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -96,6 +100,7 @@ class _LoginViewState extends State<LoginView> {
                     icon: Icon(
                       _hidePassword ? Icons.visibility : Icons.visibility_off,
                     ),
+                    // This setState is safe
                     onPressed: () =>
                         setState(() => _hidePassword = !_hidePassword),
                   ),

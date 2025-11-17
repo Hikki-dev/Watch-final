@@ -1,71 +1,60 @@
-import 'dart:convert'; 
-import 'package:flutter/foundation.dart'; // <-- 2. ADD: For debugPrint
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:hive/hive.dart';
-import '../models/watch.dart';
+// lib/services/data_service.dart
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:appcounter/models/watch.dart';
 
 class DataService {
-  final String _watchBox = 'watchCache';
-  final String _apiUrl = dotenv.env['SSP_API_URL'] ?? '';
+  final String _watchBoxName = 'watchCache';
+  final CollectionReference _productsCollection = FirebaseFirestore.instance
+      .collection('products');
 
-  // 1. Fetch data from your SSP API
+  // Fetch data from Firestore
   Future<List<Watch>> fetchWatchesFromApi() async {
-    if (_apiUrl.isEmpty) {
-      // 3. FIX: Use debugPrint instead of print
-      debugPrint("SSP_API_URL not found in .env file");
-      return [];
-    }
-
     try {
-      final response = await http.get(Uri.parse(_apiUrl));
-      if (response.statusCode == 200) {
-        String jsonString = response.body;
+      final QuerySnapshot snapshot = await _productsCollection.get();
+      final List<Watch> watches = snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return Watch.fromJson(data);
+      }).toList();
 
-        // Decode and parse the JSON
-        List<dynamic> jsonList = json.decode(
-          jsonString,
-        ); // <-- Now 'json' is defined
-        List<Watch> watches = jsonList
-            .map((json) => Watch.fromJson(json))
-            .toList();
-
-        // 4. FIX: Save the decoded watches to the DB
-        await saveWatchesToLocalDb(watches);
-
-        return watches;
-      } else {
-        return [];
-      }
+      await saveWatchesToLocalDb(watches);
+      return watches;
     } catch (e) {
-      debugPrint("API Fetch Error: $e");
+      debugPrint("Firestore Fetch Error: $e");
       return [];
     }
   }
 
-  // 2. Save List<Watch> to local DB (Hive)
+  // Save List<Watch> to local DB (Hive)
   Future<void> saveWatchesToLocalDb(List<Watch> watches) async {
-    final box = await Hive.openBox<String>(_watchBox);
-    // 5. FIX: Convert List<Watch> to a JSON string
-    List<Map<String, dynamic>> jsonList = watches
-        .map((w) => w.toJson())
+    final box = await Hive.openBox(_watchBoxName);
+    final List<Map<String, dynamic>> watchMaps = watches
+        .map((watch) => watch.toJson())
         .toList();
-    String jsonString = json.encode(jsonList);
-    await box.put('all_watches', jsonString);
+    await box.put('all_watches', watchMaps);
   }
 
-  // 3. Get data from local DB (Hive)
+  // Get data from local DB (Hive)
   Future<List<Watch>> getWatchesFromLocalDb() async {
-    final box = await Hive.openBox<String>(_watchBox);
-    final String? jsonString = box.get('all_watches');
+    final box = await Hive.openBox(_watchBoxName);
+    final List<dynamic>? watchMaps = box.get('all_watches');
 
-    if (jsonString != null && jsonString.isNotEmpty) {
-      // Decode and parse the cached JSON
-      List<dynamic> jsonList = json.decode(
-        jsonString,
-      ); // <-- Now 'json' is defined
-      return jsonList.map((json) => Watch.fromJson(json)).toList();
+    if (watchMaps != null) {
+      // --- THIS IS THE FIX ---
+      // We can't just 'cast'. We must 'map' and convert each item.
+      final List<Watch> watches = watchMaps.map((item) {
+        // 1. 'item' is a LinkedMap<dynamic, dynamic>
+        // 2. We create a new Map<String, dynamic> from it.
+        final Map<String, dynamic> jsonMap = Map<String, dynamic>.from(item);
+        // 3. Now we can safely pass it to fromJson
+        return Watch.fromJson(jsonMap);
+      }).toList();
+      // -----------------------
+
+      return watches;
     } else {
+      // No data in cache
       return [];
     }
   }
