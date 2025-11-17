@@ -1,22 +1,20 @@
 // lib/views/favorites_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
 import '../widgets/watch_card.dart';
 import 'watch_detail_view.dart';
 
-class FavoritesView extends StatefulWidget {
-  final AppController controller;
+// 2. Change to a StatelessWidget
+class FavoritesView extends StatelessWidget {
+  // 3. Remove controller from constructor
+  const FavoritesView({super.key});
 
-  const FavoritesView({super.key, required this.controller});
-
-  @override
-  State<FavoritesView> createState() => _FavoritesViewState();
-}
-
-class _FavoritesViewState extends State<FavoritesView> {
   @override
   Widget build(BuildContext context) {
-    final favoriteWatches = widget.controller.getFavoriteWatches();
+    // 4. Get controller from Provider using .watch()
+    final controller = context.watch<AppController>();
+    final favoriteWatches = controller.getFavoriteWatches();
 
     return Scaffold(
       appBar: AppBar(title: const Text('My Favorites')),
@@ -52,17 +50,17 @@ class _FavoritesViewState extends State<FavoritesView> {
                 final watch = favoriteWatches[index];
                 return WatchCard(
                   watch: watch,
-                  controller: widget.controller,
+                  // 5. Remove controller from WatchCard
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WatchDetailView(
-                          controller: widget.controller,
-                          watchId: watch.id,
-                        ),
+                        // 6. Remove controller from WatchDetailView
+                        builder: (context) =>
+                            WatchDetailView(watchId: watch.id),
                       ),
-                    ).then((_) => setState(() {})); // Refresh when returning
+                    );
+                    // 7. No .then((_) => setState(() {})) needed
                   },
                 );
               },

@@ -1,11 +1,12 @@
-// lib/views/search_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
 import '../widgets/watch_card.dart';
 
 class SearchView extends StatefulWidget {
-  final AppController controller;
-  const SearchView({super.key, required this.controller});
+  // 2. Remove controller from constructor
+  const SearchView({super.key});
+
   @override
   State<SearchView> createState() => _SearchViewState();
 }
@@ -14,35 +15,40 @@ class _SearchViewState extends State<SearchView> {
   final _searchController = TextEditingController();
   List _results = [];
 
+  // 3. Get controller from Provider inside methods
   void _search(String query) {
+    final controller = context.read<AppController>();
     setState(() {
-      _results = widget.controller.searchWatches(query);
+      _results = controller.searchWatches(query);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // 4. Get controller for the build method
+    final controller = context.read<AppController>();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Search'),
+        title: const Text('Search'),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(60),
+          preferredSize: const Size.fromHeight(60),
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: SearchBar(
               controller: _searchController,
               hintText: 'Search watches...',
               onChanged: _search,
-              leading: Icon(Icons.search),
+              leading: const Icon(Icons.search),
             ),
           ),
         ),
       ),
       body: _results.isEmpty
-          ? Center(child: Text('Search for watches'))
+          ? const Center(child: Text('Search for watches'))
           : GridView.builder(
-              padding: EdgeInsets.all(16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
@@ -53,8 +59,9 @@ class _SearchViewState extends State<SearchView> {
                 final watch = _results[index];
                 return WatchCard(
                   watch: watch,
-                  controller: widget.controller,
+                  // 5. Remove controller from WatchCard
                   onTap: () {
+                    // WatchDetailView will get controller from Provider
                     Navigator.pushNamed(context, '/watch', arguments: watch.id);
                   },
                 );
@@ -63,4 +70,3 @@ class _SearchViewState extends State<SearchView> {
     );
   }
 }
-

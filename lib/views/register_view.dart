@@ -1,10 +1,12 @@
 // lib/views/register_view.dart
 import 'package:flutter/material.dart';
 import '../controllers/app_controller.dart';
+import 'package:provider/provider.dart';
+import '../services/auth_service.dart';
 
 class RegisterView extends StatefulWidget {
+  // ... (constructor) ...
   final AppController controller;
-
   const RegisterView({super.key, required this.controller});
 
   @override
@@ -12,14 +14,13 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  // Controllers
+  // ... (controllers & state variables) ...
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _addressController = TextEditingController();
 
-  // State variables
   bool _hidePassword = true;
   String _selectedCountry = 'United States';
   String _selectedGender = 'Male';
@@ -40,47 +41,41 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create Account')),
+      appBar: AppBar(title: const Text('Create Account')),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // 1. TEXT FIELD - Name
+            // ... (Name, Email, Phone, Date fields) ...
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Full Name',
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-
-            // 2. EMAIL FIELD
+            const SizedBox(height: 16),
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email),
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-
-            // 3. PHONE FIELD
+            const SizedBox(height: 16),
             TextField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Phone',
                 prefixIcon: Icon(Icons.phone),
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-
-            // 4. DATE PICKER
+            const SizedBox(height: 16),
             InkWell(
               onTap: () async {
                 final date = await showDatePicker(
@@ -94,7 +89,7 @@ class _RegisterViewState extends State<RegisterView> {
                 }
               },
               child: InputDecorator(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Birth Date',
                   prefixIcon: Icon(Icons.calendar_today),
                   border: OutlineInputBorder(),
@@ -106,12 +101,13 @@ class _RegisterViewState extends State<RegisterView> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            // 5. DROPDOWN - Gender
+            // ... (Gender, Country dropdowns) ...
             DropdownButtonFormField<String>(
+              // --- FIX: Use initialValue ---
               initialValue: _selectedGender,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Gender',
                 prefixIcon: Icon(Icons.person_outline),
                 border: OutlineInputBorder(),
@@ -121,12 +117,11 @@ class _RegisterViewState extends State<RegisterView> {
                   .toList(),
               onChanged: (val) => setState(() => _selectedGender = val!),
             ),
-            SizedBox(height: 16),
-
-            // 6. DROPDOWN - Country
+            const SizedBox(height: 16),
             DropdownButtonFormField<String>(
+              // --- FIX: Use initialValue ---
               initialValue: _selectedCountry,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Country',
                 prefixIcon: Icon(Icons.public),
                 border: OutlineInputBorder(),
@@ -136,27 +131,38 @@ class _RegisterViewState extends State<RegisterView> {
                   .toList(),
               onChanged: (val) => setState(() => _selectedCountry = val!),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            // 7. MULTILINE TEXT - Address
+            // ... (Address field with Geolocation) ...
             TextField(
               controller: _addressController,
               maxLines: 3,
               decoration: InputDecoration(
                 labelText: 'Address',
-                prefixIcon: Icon(Icons.home),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.home),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.location_searching),
+                  onPressed: () async {
+                    // Use controller from the widget
+                    final address = await widget.controller
+                        .getCurrentLocationAddress();
+                    setState(() {
+                      _addressController.text = address;
+                    });
+                  },
+                ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-            // 8. PASSWORD FIELD
+            // ... (Password field) ...
             TextField(
               controller: _passwordController,
               obscureText: _hidePassword,
               decoration: InputDecoration(
                 labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _hidePassword ? Icons.visibility : Icons.visibility_off,
@@ -164,17 +170,17 @@ class _RegisterViewState extends State<RegisterView> {
                   onPressed: () =>
                       setState(() => _hidePassword = !_hidePassword),
                 ),
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-            // 9. FILTER CHIPS - Interests (multi-select)
-            Align(
+            // ... (Filter chips, Slider, Switch, Checkbox) ...
+            const Align(
               alignment: Alignment.centerLeft,
               child: Text('Interests', style: TextStyle(fontSize: 16)),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               children: _interestList.map((interest) {
@@ -193,12 +199,10 @@ class _RegisterViewState extends State<RegisterView> {
                 );
               }).toList(),
             ),
-            SizedBox(height: 16),
-
-            // 10. SLIDER - Age Range
+            const SizedBox(height: 16),
             SliderTheme(
               data: SliderTheme.of(context),
-              child: Column(
+              child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Preferred Watch Price Range'),
@@ -208,49 +212,63 @@ class _RegisterViewState extends State<RegisterView> {
                     max: 50000,
                     divisions: 100,
                     label: '\$5000',
-                    onChanged: (val) {},
+                    onChanged: null, // (val) {},
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16),
-
-            // 11. SWITCH - Newsletter
+            const SizedBox(height: 16),
             SwitchListTile(
               value: _newsletter,
               onChanged: (val) => setState(() => _newsletter = val),
-              title: Text('Subscribe to Newsletter'),
-              secondary: Icon(Icons.email_outlined),
+              title: const Text('Subscribe to Newsletter'),
+              secondary: const Icon(Icons.email_outlined),
             ),
-            SizedBox(height: 8),
-
-            // 12. CHECKBOX - Terms
+            const SizedBox(height: 8),
             CheckboxListTile(
               value: _agreeTerms,
               onChanged: (val) => setState(() => _agreeTerms = val ?? false),
-              title: Text('I agree to Terms & Conditions'),
+              title: const Text('I agree to Terms & Conditions'),
               controlAffinity: ListTileControlAffinity.leading,
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
-            // Register Button
+            // ... (Register Button) ...
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {
+                onPressed: () async {
                   if (!_agreeTerms) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Please agree to terms')),
+                      const SnackBar(content: Text('Please agree to terms')),
                     );
                     return;
                   }
-                  widget.controller.login(
-                    _emailController.text,
-                    _passwordController.text,
+
+                  final authService = context.read<AuthService>();
+
+                  // This line is causing the "undefined parameter 'name'" error
+                  // We will fix it in the next step.
+                  final userCredential = await authService.signUpWithEmail(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    name: _nameController.text, // Pass the name
                   );
-                  Navigator.pop(context);
+
+                  // --- FIX: Add mounted checks ---
+                  if (!context.mounted) return;
+
+                  if (userCredential != null) {
+                    // Pass the name to the controller
+                    widget.controller.setUserFullName(_nameController.text);
+                    Navigator.pop(context);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Registration failed.')),
+                    );
+                  }
                 },
-                child: Text('Create Account'),
+                child: const Text('Create Account'),
               ),
             ),
           ],

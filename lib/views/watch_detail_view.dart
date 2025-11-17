@@ -1,24 +1,30 @@
 // lib/views/watch_detail_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
+import '../models/watch.dart'; // Import the Watch model
 
 class WatchDetailView extends StatelessWidget {
-  final AppController controller;
+  // 2. Remove controller from constructor
   final String watchId;
 
   const WatchDetailView({
     super.key,
-    required this.controller,
     required this.watchId,
+    // The 'controller' parameter is removed
   });
 
   @override
   Widget build(BuildContext context) {
-    final watch = controller.getWatchById(watchId);
+    // 3. Get controller from Provider
+    // We use .watch() so the widget rebuilds if the favorite status changes
+    final controller = context.watch<AppController>();
+    final Watch? watch = controller.getWatchById(watchId);
+
     if (watch == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Not Found')),
-        body: Center(child: Text('Watch not found')),
+        appBar: AppBar(title: const Text('Not Found')),
+        body: const Center(child: Text('Watch not found')),
       );
     }
 
@@ -30,40 +36,42 @@ class WatchDetailView extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(
+              // 4. Logic is the same, but .watch() makes it rebuild
               controller.isFavorite(watch.id)
                   ? Icons.favorite
                   : Icons.favorite_border,
               color: controller.isFavorite(watch.id) ? Colors.red : null,
             ),
             onPressed: () {
+              // 5. Call controller (no setState or markNeedsBuild needed)
               controller.toggleFavorite(watch.id);
-              (context as Element).markNeedsBuild(); // Simple rebuild
             },
           ),
         ],
       ),
       body: orientation == Orientation.landscape
+          // 6. Pass the non-nullable watch to the build methods
           ? _buildLandscape(context, watch)
           : _buildPortrait(context, watch),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: FilledButton(
           onPressed: () {
             controller.addToCart(watch);
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(SnackBar(content: Text('Added to cart')));
+            ).showSnackBar(const SnackBar(content: Text('Added to cart')));
           },
-          child: Text('Add to Cart'),
+          child: const Text('Add to Cart'),
         ),
       ),
     );
   }
 
-  // PORTRAIT LAYOUT
-  Widget _buildPortrait(BuildContext context, watch) {
+  // 7. Type the parameter as Watch
+  Widget _buildPortrait(BuildContext context, Watch watch) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,70 +85,66 @@ class WatchDetailView extends StatelessWidget {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: watch.imagePath != null && watch.imagePath!.isNotEmpty
-                  ? Image.asset(
-                      watch.imagePath!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        debugPrint('❌ Detail view failed: ${watch.imagePath}');
-                        debugPrint('Error: $error');
-                        return Center(
-                          child: Icon(
-                            Icons.watch,
-                            size: 120,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    )
-                  : Center(
-                      child: Icon(Icons.watch, size: 120, color: Colors.grey),
-                    ),
+              // 8. No null check needed as imagePath is required
+              child: Image.asset(
+                watch.imagePath,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  debugPrint('❌ Detail view failed: ${watch.imagePath}');
+                  debugPrint('Error: $error');
+                  return const Center(
+                    child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                  );
+                },
+              ),
             ),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Info
           Row(
             children: [
               Chip(label: Text(watch.brand)),
-              Spacer(),
+              const Spacer(),
               Text(
                 watch.displayPrice,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             watch.name,
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(watch.category),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Description
-          Text(
+          const Text(
             'Description',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(watch.description),
-          SizedBox(height: 80),
+          const SizedBox(height: 80),
         ],
       ),
     );
   }
 
-  // LANDSCAPE LAYOUT - Side by side
-  Widget _buildLandscape(BuildContext context, watch) {
+  // 7. Type the parameter as Watch
+  Widget _buildLandscape(BuildContext context, Watch watch) {
     return Row(
       children: [
         // Left - Image
         Expanded(
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
@@ -148,27 +152,18 @@ class WatchDetailView extends StatelessWidget {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: watch.imagePath != null && watch.imagePath!.isNotEmpty
-                    ? Image.asset(
-                        watch.imagePath!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          debugPrint(
-                            '❌ Landscape view failed: ${watch.imagePath}',
-                          );
-                          debugPrint('Error: $error');
-                          return Center(
-                            child: Icon(
-                              Icons.watch,
-                              size: 120,
-                              color: Colors.grey,
-                            ),
-                          );
-                        },
-                      )
-                    : Center(
-                        child: Icon(Icons.watch, size: 120, color: Colors.grey),
-                      ),
+                // 8. No null check needed
+                child: Image.asset(
+                  watch.imagePath,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    debugPrint('❌ Landscape view failed: ${watch.imagePath}');
+                    debugPrint('Error: $error');
+                    return const Center(
+                      child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -176,38 +171,41 @@ class WatchDetailView extends StatelessWidget {
         // Right - Details
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Chip(label: Text(watch.brand)),
-                    Spacer(),
+                    const Spacer(),
                     Text(
                       watch.displayPrice,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Text(
                   watch.name,
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(watch.category),
-                SizedBox(height: 24),
-                Text(
+                const SizedBox(height: 24),
+                const Text(
                   'Description',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(watch.description),
-                SizedBox(height: 80),
+                const SizedBox(height: 80),
               ],
             ),
           ),

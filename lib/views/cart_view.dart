@@ -1,38 +1,37 @@
 // lib/views/cart_view.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
 
-class CartView extends StatefulWidget {
-  final AppController controller;
+// 2. Change to a StatelessWidget
+class CartView extends StatelessWidget {
+  // 3. Remove controller from constructor
+  const CartView({super.key});
 
-  const CartView({super.key, required this.controller});
-
-  @override
-  State<CartView> createState() => _CartViewState();
-}
-
-class _CartViewState extends State<CartView> {
   @override
   Widget build(BuildContext context) {
-    final cart = widget.controller.cart;
+    // 4. Get controller from Provider using .watch()
+    // This will make the view rebuild whenever the cart changes
+    final controller = context.watch<AppController>();
+    final cart = controller.cart;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Shopping Cart'),
+        title: const Text('Shopping Cart'),
         actions: cart.isNotEmpty
             ? [
                 TextButton(
                   onPressed: () {
-                    cart.clear();
-                    setState(() {});
+                    // 5. Call controller, no setState() needed
+                    controller.cart.clear();
                   },
-                  child: Text('Clear'),
+                  child: const Text('Clear'),
                 ),
               ]
             : null,
       ),
       body: cart.isEmpty
-          ? Center(
+          ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -57,9 +56,17 @@ class _CartViewState extends State<CartView> {
                     itemBuilder: (context, index) {
                       final item = cart.items[index];
                       return Card(
-                        margin: EdgeInsets.all(8),
+                        margin: const EdgeInsets.all(8),
                         child: ListTile(
-                          leading: Icon(Icons.watch, size: 40),
+                          // 6. Use a placeholder or load the image
+                          leading: Image.asset(
+                            item.watch.imagePath,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            errorBuilder: (ctx, err, st) =>
+                                const Icon(Icons.watch, size: 40),
+                          ),
                           title: Text(item.watch.displayName),
                           subtitle: Text(
                             '${item.watch.displayPrice} x ${item.quantity}',
@@ -68,33 +75,34 @@ class _CartViewState extends State<CartView> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.remove),
+                                icon: const Icon(Icons.remove),
                                 onPressed: () {
-                                  widget.controller.updateCartQuantity(
+                                  // 5. Call controller, no setState()
+                                  controller.updateCartQuantity(
                                     item.watch.id,
                                     item.quantity - 1,
                                   );
-                                  setState(() {});
                                 },
                               ),
                               Text('${item.quantity}'),
                               IconButton(
-                                icon: Icon(Icons.add),
+                                icon: const Icon(Icons.add),
                                 onPressed: () {
-                                  widget.controller.updateCartQuantity(
+                                  // 5. Call controller, no setState()
+                                  controller.updateCartQuantity(
                                     item.watch.id,
                                     item.quantity + 1,
                                   );
-                                  setState(() {});
                                 },
                               ),
                               IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () {
-                                  widget.controller.removeFromCart(
-                                    item.watch.id,
-                                  );
-                                  setState(() {});
+                                  // 5. Call controller, no setState()
+                                  controller.removeFromCart(item.watch.id);
                                 },
                               ),
                             ],
@@ -105,13 +113,13 @@ class _CartViewState extends State<CartView> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Total:',
                             style: TextStyle(
                               fontSize: 18,
@@ -120,37 +128,39 @@ class _CartViewState extends State<CartView> {
                           ),
                           Text(
                             cart.displayTotal,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: FilledButton(
                           onPressed: () {
                             showDialog(
                               context: context,
-                              builder: (context) => AlertDialog(
-                                title: Text('Order Placed'),
-                                content: Text('Thank you for your purchase!'),
+                              builder: (dialogContext) => AlertDialog(
+                                title: const Text('Order Placed'),
+                                content: const Text(
+                                  'Thank you for your purchase!',
+                                ),
                                 actions: [
                                   FilledButton(
                                     onPressed: () {
-                                      cart.clear();
-                                      Navigator.pop(context);
-                                      setState(() {});
+                                      // 5. Call controller, no setState()
+                                      controller.cart.clear();
+                                      Navigator.pop(dialogContext);
                                     },
-                                    child: Text('OK'),
+                                    child: const Text('OK'),
                                   ),
                                 ],
                               ),
                             );
                           },
-                          child: Text('Checkout'),
+                          child: const Text('Checkout'),
                         ),
                       ),
                     ],

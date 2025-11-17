@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "845214120914",
+    "project_id": "watchapp-b657c",
+    "storage_bucket": "watchapp-b657c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:845214120914:android:de3c23d763049bbc70e60b",
+        "android_client_info": {
+          "package_name": "com.example.appcounter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAje-GzIvUjeSuAHI_-fnPIBaQdX3kpsJo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
