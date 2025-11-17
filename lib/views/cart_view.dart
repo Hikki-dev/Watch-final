@@ -150,8 +150,11 @@ class CartView extends StatelessWidget {
                                 actions: [
                                   FilledButton(
                                     onPressed: () {
-                                      // 5. Call controller, no setState()
-                                      controller.cart.clear();
+                                      // --- THIS IS THE FIX ---
+                                      // Before: controller.cart.clear();
+                                      controller
+                                          .clearCart(); // After: Call the new method
+                                      // -----------------------
                                       Navigator.pop(dialogContext);
                                     },
                                     child: const Text('OK'),

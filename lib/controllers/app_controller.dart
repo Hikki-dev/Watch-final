@@ -7,7 +7,7 @@ import 'package:battery_plus/battery_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 
 import '../models/watch.dart';
-import '../models/user.dart'; 
+import '../models/user.dart';
 import '../models/cart.dart';
 import '../services/auth_service.dart';
 import '../services/data_service.dart';
@@ -49,12 +49,11 @@ class AppController extends ChangeNotifier {
     }
 
     // 2. Check for network connectivity (Criteria 5)
-    // --- THIS IS THE CORRECTED LOGIC ---
-    final List<ConnectivityResult> connectivityResult =
-        await _connectivity.checkConnectivity();
-    final bool isOnline = connectivityResult.isNotEmpty &&
+    final List<ConnectivityResult> connectivityResult = await _connectivity
+        .checkConnectivity();
+    final bool isOnline =
+        connectivityResult.isNotEmpty &&
         !connectivityResult.contains(ConnectivityResult.none);
-    // ------------------------------------
 
     if (isOnline) {
       // 3. If online, fetch from API (Criteria 3)
@@ -71,7 +70,7 @@ class AppController extends ChangeNotifier {
   }
 
   // Update user state when auth changes
-  void _onAuthStateChanged(fb.User? firebaseUser) { // Use prefixed type
+  void _onAuthStateChanged(fb.User? firebaseUser) {
     if (firebaseUser == null) {
       currentUser = null;
       _userFullName = null;
@@ -80,8 +79,8 @@ class AppController extends ChangeNotifier {
       // Create your app User from the firebase User
       currentUser = User(
         id: firebaseUser.uid,
-        // Use the stored full name, or derive from email
-        name: _userFullName ??
+        name:
+            _userFullName ??
             firebaseUser.displayName ??
             firebaseUser.email!.split('@')[0].toUpperCase(),
         email: firebaseUser.email!,
@@ -93,33 +92,28 @@ class AppController extends ChangeNotifier {
   // Called from register view to set the name
   void setUserFullName(String name) {
     _userFullName = name;
-    // Update current user if they are already logged in
     if (currentUser != null) {
       currentUser = User(
         id: currentUser!.id,
-        name: name, // Use the new name
+        name: name,
         email: currentUser!.email,
       );
       notifyListeners();
     }
   }
 
-  // --- EXISTING LOGIC (Cleaned) ---
+  // --- EXISTING LOGIC ---
 
-  // Get all brands
   List<String> getBrands() {
-    // This is better dynamically from your data:
     return allWatches.map((w) => w.brand).toSet().toList()..sort();
   }
 
-  // Get watches by brand
   List<Watch> getWatchesByBrand(String brand) {
     return allWatches
         .where((w) => w.brand.toLowerCase() == brand.toLowerCase())
         .toList();
   }
 
-  // Search watches
   List<Watch> searchWatches(String query) {
     if (query.isEmpty) return [];
     final q = query.toLowerCase();
@@ -133,7 +127,6 @@ class AppController extends ChangeNotifier {
         .toList();
   }
 
-  // Get watch by ID
   Watch? getWatchById(String id) {
     try {
       return allWatches.firstWhere((w) => w.id == id);
@@ -158,6 +151,13 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  // --- ADDED THIS METHOD ---
+  void clearCart() {
+    cart.clear();
+    notifyListeners();
+  }
+  // -------------------------
+
   // Favorites
   void toggleFavorite(String watchId) {
     if (currentUser != null) {
@@ -175,9 +175,8 @@ class AppController extends ChangeNotifier {
     return allWatches.where((w) => currentUser!.isFavorite(w.id)).toList();
   }
 
-  // --- NEW DEVICE CAPABILITY METHODS (Criteria 5) ---
+  // --- DEVICE CAPABILITY METHODS ---
 
-  // 1. Camera
   Future<XFile?> pickProfileImage() async {
     try {
       return await _imagePicker.pickImage(source: ImageSource.camera);
@@ -187,10 +186,8 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  // 2. Geolocation
   Future<String> getCurrentLocationAddress() async {
     try {
-      // Check permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -198,12 +195,9 @@ class AppController extends ChangeNotifier {
           return 'Permission denied';
         }
       }
-
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.medium,
       );
-
-      // For the demo, just return coords.
       return 'Lat: ${position.latitude.toStringAsFixed(4)}, Lng: ${position.longitude.toStringAsFixed(4)}';
     } catch (e) {
       debugPrint("Geolocation Error: $e");
@@ -211,7 +205,6 @@ class AppController extends ChangeNotifier {
     }
   }
 
-  // 3. Battery
   Future<int> getBatteryLevel() async {
     try {
       return await _battery.batteryLevel;
