@@ -3,23 +3,16 @@ class User {
   final String id;
   final String name;
   final String email;
-  final Set<String> _favorites = {};
+  final String? profileImagePath; // For Firebase Storage URL
+  final Set<String> favorites; // Read-only, set via AppController
 
-  User({required this.id, required this.name, required this.email});
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    this.profileImagePath, 
+    Set<String>? favorites, 
+  }) : favorites = favorites ?? {}; // Initialize or use passed-in set.
 
-  Set<String> get favorites => Set.unmodifiable(_favorites);
-
-  bool isFavorite(String watchId) => _favorites.contains(watchId);
-
-  void addFavorite(String watchId) => _favorites.add(watchId);
-
-  void removeFavorite(String watchId) => _favorites.remove(watchId);
-
-  void toggleFavorite(String watchId) {
-    if (isFavorite(watchId)) {
-      removeFavorite(watchId);
-    } else {
-      addFavorite(watchId);
-    }
-  }
+  bool isFavorite(String watchId) => favorites.contains(watchId);
 }

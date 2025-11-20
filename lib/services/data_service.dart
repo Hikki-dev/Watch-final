@@ -8,6 +8,62 @@ class DataService {
   final String _watchBoxName = 'watchCache';
   final CollectionReference _productsCollection = FirebaseFirestore.instance
       .collection('products');
+  final CollectionReference _usersCollection = FirebaseFirestore.instance
+      .collection('users');
+
+  // Get live user data (Favorites/Profile Image Path/Cart Items)
+  Stream<Map<String, dynamic>> streamUserData(String userId) {
+    return _usersCollection.doc(userId).snapshots().map((snapshot) {
+      if (!snapshot.exists) {
+        return {};
+      }
+      return snapshot.data() as Map<String, dynamic>;
+    });
+  }
+
+  // Update user's favorites in Firestore (MODIFIED)
+  Future<void> updateFavorites(
+    String userId,
+    String userName, // <-- ADDED
+    String userEmail, // <-- ADDED
+    Set<String> favorites,
+  ) async {
+    // Firestore stores Sets as Lists in the database
+    await _usersCollection.doc(userId).set({
+      'name': userName, // <-- SAVED
+      'email': userEmail, // <-- SAVED
+      'favorites': favorites.toList(),
+    }, SetOptions(merge: true));
+  }
+
+  // Update user's profile image URL in Firestore (MODIFIED)
+  Future<void> updateProfileImagePath(
+    String userId,
+    String userName, // <-- ADDED
+    String userEmail, // <-- ADDED
+    String? imageUrl,
+  ) async {
+    await _usersCollection.doc(userId).set({
+      'name': userName, // <-- SAVED
+      'email': userEmail, // <-- SAVED
+      'profileImagePath': imageUrl,
+    }, SetOptions(merge: true));
+  }
+
+  // Update user's cart items in Firestore (MODIFIED)
+  // cartItems should be a List of Maps: [{'watchId': '123', 'quantity': 2}]
+  Future<void> updateCart(
+    String userId,
+    String userName, // <-- ADDED
+    String userEmail, // <-- ADDED
+    List<Map<String, dynamic>> cartItems,
+  ) async {
+    await _usersCollection.doc(userId).set({
+      'name': userName, // <-- SAVED
+      'email': userEmail, // <-- SAVED
+      'cartItems': cartItems,
+    }, SetOptions(merge: true));
+  }
 
   // Fetch data from Firestore
   Future<List<Watch>> fetchWatchesFromApi() async {

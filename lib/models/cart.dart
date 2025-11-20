@@ -18,6 +18,13 @@ class Cart extends ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   bool get isNotEmpty => _items.isNotEmpty;
 
+  void replaceAll(List<CartItem> newItems) {
+    _items
+      ..clear()
+      ..addAll(newItems);
+    notifyListeners();
+  }
+
   void addWatch(Watch watch, {int quantity = 1}) {
     final existingIndex = _items.indexWhere(
       (item) => item.watch.id == watch.id,

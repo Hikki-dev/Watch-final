@@ -61,20 +61,36 @@ class ProfileView extends StatelessWidget {
                 if (!context.mounted) return;
 
                 if (file != null) {
+                  // 1. Call the new DB upload/save method
+                  controller.updateProfilePicture(file);
+
+                  if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Image selected!')),
+                    const SnackBar(content: Text('Image upload started...')),
                   );
                 }
               },
-              child: const CircleAvatar(
+              child: CircleAvatar(
+                // <-- MODIFIED: To display the image from the URL
                 radius: 50,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.person, size: 40),
-                    Icon(Icons.camera_alt, size: 20, color: Colors.black45),
-                  ],
-                ),
+                // Display network image if URL is present
+                backgroundImage: user.profileImagePath != null
+                    ? NetworkImage(user.profileImagePath!)
+                    : null,
+                // Show placeholder icons only if no image URL is present
+                child: user.profileImagePath == null
+                    ? const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person, size: 40),
+                          Icon(
+                            Icons.camera_alt,
+                            size: 20,
+                            color: Colors.black45,
+                          ),
+                        ],
+                      )
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
@@ -159,6 +175,28 @@ class ProfileView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 24),
+
+            // --- GEOLOCATION TILE (NEW) ---
+            Card(
+              child: FutureBuilder<String>(
+                // Fetch the current location address
+                future: controller.getCurrentLocationAddress(),
+                builder: (context, snapshot) {
+                  return ListTile(
+                    leading: const Icon(Icons.location_on),
+                    title: const Text('Current Location (Geolocation)'),
+                    trailing: Text(
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? 'Fetching...'
+                          : snapshot.data ?? 'N/A',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 16),
+            // --- END GEOLOCATION TILE ---
 
             // ... (Theme Selector - No async calls, no change) ...
             if (onThemeChanged != null && currentThemeMode != null) ...[
