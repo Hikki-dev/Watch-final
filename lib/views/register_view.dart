@@ -1,4 +1,4 @@
-// lib/views/register_view.dart
+import 'package:firebase_auth/firebase_auth.dart'; // Import for Exception
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/app_controller.dart';
@@ -12,24 +12,11 @@ class RegisterView extends StatefulWidget {
 }
 
 class _RegisterViewState extends State<RegisterView> {
-  // 1. --- Simplified Controllers ---
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _hidePassword = true;
   bool _agreeTerms = false;
-  // ---------------------------------
-
-  // 2. --- Removed Unwanted State Variables ---
-  // final _phoneController = TextEditingController();
-  // final _addressController = TextEditingController();
-  // String _selectedCountry = 'United States';
-  // String _selectedGender = 'Male';
-  // DateTime? _birthDate;
-  // bool _newsletter = false;
-  // final Set<String> _interests = {};
-  // ... and removed the corresponding lists ...
-  // ---------------------------------
 
   @override
   void dispose() {
@@ -39,19 +26,73 @@ class _RegisterViewState extends State<RegisterView> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void _register() async {
+    if (!_agreeTerms) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please agree to terms')));
+      return;
+    }
+
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
+      return;
+    }
+
+    final authService = context.read<AuthService>();
     final controller = context.read<AppController>();
 
+    try {
+      // 1. Attempt Registration
+      await authService.signUpWithEmail(
+        email: _emailController.text,
+        password: _passwordController.text,
+        name: _nameController.text,
+      );
+
+      if (!mounted) return;
+
+      // 2. Success Logic
+      controller.setUserFullName(_nameController.text);
+      Navigator.pop(context); // Go back to login or home
+    } on FirebaseAuthException catch (e) {
+      // 3. Error Handling
+      if (!mounted) return;
+
+      String message = 'Registration failed';
+      if (e.code == 'email-already-in-use') {
+        message = 'The email is already in use.';
+      } else if (e.code == 'weak-password') {
+        message = 'The password is too weak.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email is invalid.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ... (Keep your existing UI code exactly as it is) ...
+    // Note: Update the onPressed of the button to call `_register`
     return Scaffold(
       appBar: AppBar(title: const Text('Create Account')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // --- 3. Simplified Form ---
-
-            // 1. TEXT FIELD - Name
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -61,8 +102,6 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 2. EMAIL FIELD
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
@@ -73,8 +112,6 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // 3. PASSWORD FIELD
             TextField(
               controller: _passwordController,
               obscureText: _hidePassword,
@@ -92,8 +129,6 @@ class _RegisterViewState extends State<RegisterView> {
               ),
             ),
             const SizedBox(height: 24),
-
-            // 4. CHECKBOX - Terms
             CheckboxListTile(
               value: _agreeTerms,
               onChanged: (val) => setState(() => _agreeTerms = val ?? false),
@@ -101,53 +136,11 @@ class _RegisterViewState extends State<RegisterView> {
               controlAffinity: ListTileControlAffinity.leading,
             ),
             const SizedBox(height: 32),
-
-            // --- All other fields removed ---
-
-            // Register Button
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () async {
-                  if (!_agreeTerms) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please agree to terms')),
-                    );
-                    return;
-                  }
-
-                  // Check if essential fields are filled
-                  if (_nameController.text.isEmpty ||
-                      _emailController.text.isEmpty ||
-                      _passwordController.text.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please fill all fields')),
-                    );
-                    return;
-                  }
-
-                  final authService = context.read<AuthService>();
-                  final userCredential = await authService.signUpWithEmail(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                    name: _nameController.text,
-                  );
-
-                  if (!context.mounted) return;
-
-                  if (userCredential != null) {
-                    controller.setUserFullName(_nameController.text);
-                    Navigator.pop(context);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Registration failed. Try another email.',
-                        ),
-                      ),
-                    );
-                  }
-                },
+                // Update this line to use the new function
+                onPressed: _register,
                 child: const Text('Create Account'),
               ),
             ),

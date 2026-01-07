@@ -1,11 +1,10 @@
-// lib/views/login_view.dart
+import 'package:firebase_auth/firebase_auth.dart'; // Import this for Exception handling
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/app_controller.dart';
 import '../services/auth_service.dart';
 
 class LoginView extends StatefulWidget {
-  // 1. REMOVE controller from constructor
   const LoginView({super.key});
 
   @override
@@ -24,8 +23,45 @@ class _LoginViewState extends State<LoginView> {
     super.dispose();
   }
 
+  void _loginWithGoogle() async {
+    final authService = context.read<AuthService>();
+    final controller = context.read<AppController>();
+
+    try {
+      final userCredential = await authService.signInWithGoogle();
+
+      if (!mounted) return;
+
+      controller.setUserFullName(userCredential.user?.displayName ?? 'User');
+
+      // Wait for Firestore to sync role
+      int attempts = 0;
+      while (!controller.isUserDataLoaded && attempts < 20) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        attempts++;
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, controller.homeRoute);
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      if (e.code == 'ERROR_ABORTED_BY_USER') return; // Ignore user cancellation
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Google Sign-In Failed: ${e.message}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   void _login() async {
-    // 2. Get services from Provider
     final authService = context.read<AuthService>();
     final controller = context.read<AppController>();
 
@@ -36,29 +72,61 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
-    final userCredential = await authService.signInWithEmail(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+    try {
+      // 1. Attempt Login
+      final userCredential = await authService.signInWithEmail(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-    if (!context.mounted) return;
+      if (!mounted) return;
 
-    if (userCredential != null) {
-      // 3. Set the user's name on login
+      // 2. Success Logic
       controller.setUserFullName(
         userCredential.user?.displayName ??
             _emailController.text.split('@')[0].toUpperCase(),
       );
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
+
+      // Wait for Firestore to sync role
+      int attempts = 0;
+      while (!controller.isUserDataLoaded && attempts < 20) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        attempts++;
+      }
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, controller.homeRoute);
+    } on FirebaseAuthException catch (e) {
+      // 3. Error Handling
+      if (!mounted) return;
+
+      String message = 'Login failed';
+      if (e.code == 'user-not-found') {
+        message = 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Wrong password provided.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is invalid.';
+      } else if (e.code == 'user-disabled') {
+        message = 'This user has been disabled.';
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed. Check credentials.')),
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
+    } catch (e) {
+      // General errors
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // ... (Keep your existing UI code exactly as it is) ...
+    // Just copy the `build` method from your previous file here.
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -77,8 +145,6 @@ class _LoginViewState extends State<LoginView> {
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 40),
-
-              // Email
               TextField(
                 controller: _emailController,
                 decoration: const InputDecoration(
@@ -88,8 +154,6 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Password
               TextField(
                 controller: _passwordController,
                 obscureText: _hidePassword,
@@ -100,7 +164,6 @@ class _LoginViewState extends State<LoginView> {
                     icon: Icon(
                       _hidePassword ? Icons.visibility : Icons.visibility_off,
                     ),
-                    // This setState is safe
                     onPressed: () =>
                         setState(() => _hidePassword = !_hidePassword),
                   ),
@@ -108,8 +171,6 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Login Button
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -118,12 +179,20 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Register Link
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  icon: const Icon(
+                    Icons.g_mobiledata,
+                    size: 28,
+                  ), // Use a built-in icon or custom asset
+                  label: const Text('Sign in with Google'),
+                  onPressed: _loginWithGoogle,
+                ),
+              ),
+              const SizedBox(height: 16),
               TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/register');
-                },
+                onPressed: () => Navigator.pushNamed(context, '/register'),
                 child: const Text('Create Account'),
               ),
             ],

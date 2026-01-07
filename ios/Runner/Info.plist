@@ -45,5 +45,24 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to let you upload a profile picture.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to let you take a profile picture.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for video features.</string>
+	<key>GIDClientID</key>
+	<string>845214120914-8jlj6lq37hcdf2hse2dilotti7ksk42a.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.845214120914-8jlj6lq37hcdf2hse2dilotti7ksk42a</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

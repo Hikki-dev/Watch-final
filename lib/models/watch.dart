@@ -1,4 +1,6 @@
-// lib/models/watch.dart
+import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 class Watch {
   final String id;
   final String name;
@@ -7,6 +9,7 @@ class Watch {
   final String category;
   final String description;
   final String imagePath; // Made required (not nullable)
+  final int stock; // New field for inventory management
 
   Watch({
     required this.id,
@@ -16,10 +19,21 @@ class Watch {
     required this.category,
     required this.description,
     required this.imagePath,
+    required this.stock,
   });
 
   String get displayPrice => '\$${price.toStringAsFixed(2)}';
   String get displayName => '$brand $name';
+  bool get isInStock => stock > 0;
+
+  bool get isNetworkImage => imagePath.startsWith('http');
+
+  ImageProvider get imageProvider {
+    if (isNetworkImage) {
+      return CachedNetworkImageProvider(imagePath);
+    }
+    return AssetImage(imagePath);
+  }
 
   // --- ADD THIS (FOR API & LOCAL DB) ---
   // Converts JSON (from API/DB) into a Watch object
@@ -39,6 +53,8 @@ class Watch {
       imagePath:
           json['imagePath'] ??
           'assets/images/watches/ap-royal-oak-1.jpg', // A fallback
+      stock:
+          (json['stock'] as num?)?.toInt() ?? 10, // Default to 10 for migration
     );
   }
 
@@ -53,6 +69,7 @@ class Watch {
       'category': category,
       'description': description,
       'imagePath': imagePath,
+      'stock': stock,
     };
   }
 }

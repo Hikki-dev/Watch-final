@@ -1,6 +1,8 @@
 // lib/views/splash_view.dart
 import 'package:flutter/material.dart';
-// import '../controllers/app_controller.dart'; // <-- 1. REMOVE this import
+import 'package:provider/provider.dart';
+import '../controllers/app_controller.dart';
+import '../services/auth_service.dart';
 
 class SplashView extends StatefulWidget {
   // 2. REMOVE controller from constructor
@@ -14,12 +16,34 @@ class _SplashViewState extends State<SplashView> {
   @override
   void initState() {
     super.initState();
-    // Wait 2 seconds then navigate to login
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/login');
+    _checkAuthAndNavigate();
+  }
+
+  Future<void> _checkAuthAndNavigate() async {
+    // 1. Wait for min splash duration (UI experience)
+    await Future.delayed(const Duration(seconds: 2));
+    if (!mounted) return;
+
+    // 2. Get Access to Providers
+    final authService = context.read<AuthService>();
+    final controller = context.read<AppController>();
+
+    // 3. Check if user is logged in
+    final user = authService.currentUser;
+
+    if (user != null) {
+      // 4. Wait for Controller to fully load user data (Strict Sync)
+      // We loop until isUserDataLoaded is true or timeout
+      int attempts = 0;
+      while (!controller.isUserDataLoaded && attempts < 20) {
+        await Future.delayed(const Duration(milliseconds: 200));
+        attempts++;
       }
-    });
+
+      Navigator.pushReplacementNamed(context, controller.homeRoute);
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
 import '../models/watch.dart'; // Import the Watch model
+import '../widgets/universal_image.dart';
 
 class WatchDetailView extends StatelessWidget {
   // 2. Remove controller from constructor
@@ -50,19 +51,25 @@ class WatchDetailView extends StatelessWidget {
         ],
       ),
       body: orientation == Orientation.landscape
-          // 6. Pass the non-nullable watch to the build methods
           ? _buildLandscape(context, watch)
           : _buildPortrait(context, watch),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16),
         child: FilledButton(
-          onPressed: () {
-            controller.addToCart(watch);
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text('Added to cart')));
-          },
-          child: const Text('Add to Cart'),
+          onPressed: watch.isInStock
+              ? () {
+                  controller.addToCart(watch);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Added to cart')),
+                  );
+                }
+              : null, // Disable if out of stock
+          style: watch.isInStock
+              ? null
+              : ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Colors.grey),
+                ),
+          child: Text(watch.isInStock ? 'Add to Cart' : 'Out of Stock'),
         ),
       ),
     );
@@ -86,16 +93,12 @@ class WatchDetailView extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               // 8. No null check needed as imagePath is required
-              child: Image.asset(
-                watch.imagePath,
+              child: UniversalImage(
+                imagePath: watch.imagePath,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  debugPrint('❌ Detail view failed: ${watch.imagePath}');
-                  debugPrint('Error: $error');
-                  return const Center(
-                    child: Icon(Icons.watch, size: 120, color: Colors.grey),
-                  );
-                },
+                errorWidget: const Center(
+                  child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                ),
               ),
             ),
           ),
@@ -106,12 +109,25 @@ class WatchDetailView extends StatelessWidget {
             children: [
               Chip(label: Text(watch.brand)),
               const Spacer(),
-              Text(
-                watch.displayPrice,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    watch.displayPrice,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    '${watch.stock} left',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: watch.isInStock ? Colors.green : Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -153,16 +169,12 @@ class WatchDetailView extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 // 8. No null check needed
-                child: Image.asset(
-                  watch.imagePath,
+                child: UniversalImage(
+                  imagePath: watch.imagePath,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    debugPrint('❌ Landscape view failed: ${watch.imagePath}');
-                    debugPrint('Error: $error');
-                    return const Center(
-                      child: Icon(Icons.watch, size: 120, color: Colors.grey),
-                    );
-                  },
+                  errorWidget: const Center(
+                    child: Icon(Icons.watch, size: 120, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
@@ -179,12 +191,25 @@ class WatchDetailView extends StatelessWidget {
                   children: [
                     Chip(label: Text(watch.brand)),
                     const Spacer(),
-                    Text(
-                      watch.displayPrice,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          watch.displayPrice,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          '${watch.stock} left',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: watch.isInStock ? Colors.green : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),

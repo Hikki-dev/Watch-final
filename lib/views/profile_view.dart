@@ -1,9 +1,11 @@
 // lib/views/profile_view.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart'; // Still needed for ImageSource enum
 import '../controllers/app_controller.dart';
 import '../services/auth_service.dart';
 import 'favorites_view.dart';
+import '../widgets/universal_image.dart';
 
 class ProfileView extends StatelessWidget {
   final Function(ThemeMode)? onThemeChanged;
@@ -16,6 +18,65 @@ class ProfileView extends StatelessWidget {
     this.currentThemeMode,
     this.onNavigateToCart,
   });
+
+  void _showImageSourceActionSheet(BuildContext parentContext) {
+    final controller = parentContext.read<AppController>();
+    showModalBottomSheet(
+      context: parentContext,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Photo Gallery'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  // Use parentContext here, as 'context' (sheet) is now unmounted
+                  _pickAndUploadImage(
+                    parentContext,
+                    controller,
+                    ImageSource.gallery,
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera),
+                title: const Text('Camera'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  // Use parentContext here
+                  _pickAndUploadImage(
+                    parentContext,
+                    controller,
+                    ImageSource.camera,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickAndUploadImage(
+    BuildContext context,
+    AppController controller,
+    ImageSource source,
+  ) async {
+    // Determine context safely
+    if (!context.mounted) return;
+
+    // Call controller (which now handles everything)
+    await controller.pickAndUploadProfileImage(source: source);
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile picture updated successfully')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +97,7 @@ class ProfileView extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await authService.signOut();
-
-              // --- 1. FIX: Add mounted check ---
               if (!context.mounted) return;
-
               Navigator.pushNamedAndRemoveUntil(
                 context,
                 '/login',
@@ -54,43 +112,15 @@ class ProfileView extends StatelessWidget {
         child: Column(
           children: [
             InkWell(
-              onTap: () async {
-                final file = await controller.pickProfileImage();
-
-                // --- 2. FIX: Add mounted check ---
-                if (!context.mounted) return;
-
-                if (file != null) {
-                  // 1. Call the new DB upload/save method
-                  controller.updateProfilePicture(file);
-
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Image upload started...')),
-                  );
-                }
-              },
+              onTap: () => _showImageSourceActionSheet(context),
               child: CircleAvatar(
-                // <-- MODIFIED: To display the image from the URL
                 radius: 50,
-                // Display network image if URL is present
-                backgroundImage: user.profileImagePath != null
-                    ? NetworkImage(user.profileImagePath!)
-                    : null,
-                // Show placeholder icons only if no image URL is present
-                child: user.profileImagePath == null
-                    ? const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.person, size: 40),
-                          Icon(
-                            Icons.camera_alt,
-                            size: 20,
-                            color: Colors.black45,
-                          ),
-                        ],
-                      )
-                    : null,
+                child: UniversalImage(
+                  imagePath: user.profileImagePath,
+                  fit: BoxFit.cover,
+                  errorWidget: const Icon(Icons.person, size: 40),
+                  placeholder: const CircularProgressIndicator(),
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -104,12 +134,12 @@ class ProfileView extends StatelessWidget {
             ),
             const SizedBox(height: 32),
 
-            // ... (Stats Row - No async calls here, no change needed) ...
+            // --- Stats Row ---
             Row(
               children: [
                 Expanded(
                   child: InkWell(
-                    onTap: onNavigateToCart, // Use the passed-in callback
+                    onTap: onNavigateToCart,
                     child: Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
@@ -142,7 +172,6 @@ class ProfileView extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          // This is now fixed because FavoritesView is updated
                           builder: (context) => const FavoritesView(),
                         ),
                       );
@@ -176,29 +205,40 @@ class ProfileView extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // --- GEOLOCATION TILE (NEW) ---
+            // --- Geolocation Card (FIXED) ---
             Card(
               child: FutureBuilder<String>(
-                // Fetch the current location address
                 future: controller.getCurrentLocationAddress(),
                 builder: (context, snapshot) {
+                  // FIXED: Removed the incorrect battery calculation logic here
                   return ListTile(
                     leading: const Icon(Icons.location_on),
-                    title: const Text('Current Location (Geolocation)'),
-                    trailing: Text(
-                      snapshot.connectionState == ConnectionState.waiting
-                          ? 'Fetching...'
-                          : snapshot.data ?? 'N/A',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    title: const Text('Current Location'),
+                    subtitle: const Text(
+                      'Latitude / Longitude',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    trailing: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 10000),
+                      child: Text(
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? 'Fetching...'
+                            : snapshot.data ?? 'Unavailable',
+                        textAlign: TextAlign.end,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   );
                 },
               ),
             ),
             const SizedBox(height: 16),
-            // --- END GEOLOCATION TILE ---
 
-            // ... (Theme Selector - No async calls, no change) ...
+            // --- Theme Selector ---
             if (onThemeChanged != null && currentThemeMode != null) ...[
               const Text(
                 'Theme',
@@ -236,19 +276,24 @@ class ProfileView extends StatelessWidget {
               const SizedBox(height: 24),
             ],
 
-            // ... (Battery Tile - No async calls, no change) ...
+            // --- Battery Tile ---
             Card(
               child: FutureBuilder<int>(
                 future: controller.getBatteryLevel(),
                 builder: (context, snapshot) {
                   final level = snapshot.data;
+                  // Ensure we handle -1 or null
+                  final displayLevel = (level != null && level >= 0)
+                      ? '$level%'
+                      : 'N/A';
+
                   return ListTile(
                     leading: const Icon(Icons.battery_std),
                     title: const Text('Battery Level'),
                     trailing: Text(
                       snapshot.connectionState == ConnectionState.waiting
                           ? '...'
-                          : (level != null ? '$level%' : 'N/A'),
+                          : displayLevel,
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   );
@@ -256,7 +301,7 @@ class ProfileView extends StatelessWidget {
               ),
             ),
 
-            // ... (Options ListTiles - No async calls, no change) ...
+            // --- Menu Options ---
             Card(
               child: ListTile(
                 leading: const Icon(Icons.shopping_bag),
@@ -299,8 +344,6 @@ class ProfileView extends StatelessWidget {
                           SizedBox(height: 8),
                           Text('Email: support@watchstore.com'),
                           Text('Phone: 1-800-WATCHES'),
-                          SizedBox(height: 16),
-                          Text('Hours: 9 AM - 5 PM EST'),
                         ],
                       ),
                       actions: [
@@ -314,6 +357,37 @@ class ProfileView extends StatelessWidget {
                 },
               ),
             ),
+            // --- Role Based Dashboards ---
+            if (user.isAdmin)
+              Card(
+                color: Colors.red[50],
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.admin_panel_settings,
+                    color: Colors.red,
+                  ),
+                  title: const Text('Admin Dashboard'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/admin');
+                  },
+                ),
+              ),
+
+            if (user.isSeller)
+              Card(
+                color: Colors.blue[50],
+                child: ListTile(
+                  leading: const Icon(Icons.store, color: Colors.blue),
+                  title: const Text('Seller Dashboard'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/seller');
+                  },
+                ),
+              ),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),

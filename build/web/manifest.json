@@ -1,6 +1,6 @@
 {
-    "name": "appcounter",
-    "short_name": "appcounter",
+    "name": "Watch Store",
+    "short_name": "Watch Store",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

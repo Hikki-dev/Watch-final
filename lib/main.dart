@@ -1,8 +1,11 @@
 // lib/main.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'controllers/app_controller.dart';
 import 'services/auth_service.dart';
@@ -12,25 +15,53 @@ import 'views/register_view.dart';
 import 'views/home_view.dart';
 import 'views/brand_view.dart';
 import 'views/watch_detail_view.dart';
+import 'views/admin/admin_dashboard_view.dart';
+import 'views/seller/seller_dashboard_view.dart';
 
 import 'firebase_options.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await Hive.initFlutter();
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<AuthService>(create: (_) => AuthService()),
-        ChangeNotifierProvider<AppController>(
-          create: (context) =>
-              AppController(authService: context.read<AuthService>())
-                ..initialize(),
-        ),
-      ],
-      child: WatchApp(),
-    ),
+  runZonedGuarded(
+    () async {
+      WidgetsFlutterBinding.ensureInitialized();
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        await Hive.initFlutter();
+        // Optimize Image Caching
+        CachedNetworkImage.logLevel = CacheManagerLogLevel.debug;
+        // Custom cache manager can be configured here if needed,
+        // but default is usually sufficient for standard apps.
+
+        runApp(
+          MultiProvider(
+            providers: [
+              Provider<AuthService>(create: (_) => AuthService()),
+              ChangeNotifierProvider<AppController>(
+                create: (context) =>
+                    AppController(authService: context.read<AuthService>())
+                      ..initialize(),
+              ),
+            ],
+            child: const WatchApp(),
+          ),
+        );
+      } catch (e, stack) {
+        debugPrint('Error initializing app: $e\n$stack');
+        // Render a simple error widget if initialization fails
+        runApp(
+          MaterialApp(
+            home: Scaffold(
+              body: Center(child: Text('Initialization Error: $e')),
+            ),
+          ),
+        );
+      }
+    },
+    (error, stack) {
+      debugPrint('Uncaught error: $error\n$stack');
+    },
   );
 }
 
@@ -79,6 +110,8 @@ class _WatchAppState extends State<WatchApp> {
           onThemeChanged: _setThemeMode,
           currentThemeMode: _themeMode,
         ),
+        '/admin': (context) => const AdminDashboardView(),
+        '/seller': (context) => const SellerDashboardView(),
       },
 
       onGenerateRoute: (settings) {

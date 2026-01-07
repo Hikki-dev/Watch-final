@@ -6,6 +6,7 @@ import '../models/brand.dart';
 import 'search_view.dart';
 import 'cart_view.dart';
 import 'profile_view.dart';
+import '../widgets/universal_image.dart';
 
 class HomeView extends StatefulWidget {
   // 2. The controller is no longer passed in
@@ -51,53 +52,115 @@ class _HomeViewState extends State<HomeView> {
 
     if (isWide) {
       // TABLET LAYOUT - Navigation Rail (side)
+      // TABLET/DESKTOP LAYOUT - Top Navigation Bar
       return Scaffold(
-        body: Row(
-          children: [
-            NavigationRail(
-              selectedIndex: _currentIndex,
-              onDestinationSelected: (i) => setState(() => _currentIndex = i),
-              labelType: NavigationRailLabelType.all,
-              destinations: const [
-                NavigationRailDestination(
-                  icon: Icon(Icons.home),
-                  label: Text('Home'),
+        appBar: AppBar(
+          title: const Text('Watch Store'),
+          actions: [
+            TextButton.icon(
+              onPressed: () => setState(() => _currentIndex = 0),
+              icon: Icon(
+                Icons.home,
+                color: _currentIndex == 0
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+              label: Text(
+                'Home',
+                style: TextStyle(
+                  color: _currentIndex == 0
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                  fontWeight: _currentIndex == 0
+                      ? FontWeight.bold
+                      : FontWeight.normal,
                 ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.search),
-                  label: Text('Search'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.shopping_cart),
-                  label: Text('Cart'),
-                ),
-                NavigationRailDestination(
-                  icon: Icon(Icons.person),
-                  label: Text('Profile'),
-                ),
-              ],
+              ),
             ),
-            const VerticalDivider(width: 1),
-            // 4. Use a Consumer to show a loading spinner
-            //    while the controller fetches data.
-            Consumer<AppController>(
-              builder: (context, controller, child) {
-                return controller.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : Expanded(child: screens[_currentIndex]);
-              },
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: () => setState(() => _currentIndex = 1),
+              icon: Icon(
+                Icons.search,
+                color: _currentIndex == 1
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+              label: Text(
+                'Search',
+                style: TextStyle(
+                  color: _currentIndex == 1
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                  fontWeight: _currentIndex == 1
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
             ),
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: () => setState(() => _currentIndex = 2),
+              icon: Icon(
+                Icons.shopping_cart,
+                color: _currentIndex == 2
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+              label: Text(
+                'Cart',
+                style: TextStyle(
+                  color: _currentIndex == 2
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                  fontWeight: _currentIndex == 2
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            TextButton.icon(
+              onPressed: () => setState(() => _currentIndex = 3),
+              icon: Icon(
+                Icons.person,
+                color: _currentIndex == 3
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+              ),
+              label: Text(
+                'Profile',
+                style: TextStyle(
+                  color: _currentIndex == 3
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                  fontWeight: _currentIndex == 3
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
           ],
+        ),
+        body: Selector<AppController, bool>(
+          selector: (context, controller) => controller.isLoading,
+          builder: (context, isLoading, child) {
+            return isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : screens[_currentIndex];
+          },
         ),
       );
     }
 
     // PHONE LAYOUT - Bottom Navigation
     return Scaffold(
-      // 4. Use a Consumer here as well for the phone layout
-      body: Consumer<AppController>(
-        builder: (context, controller, child) {
-          return controller.isLoading
+      // 4. Use Selector to only rebuild when isLoading changes
+      body: Selector<AppController, bool>(
+        selector: (context, controller) => controller.isLoading,
+        builder: (context, isLoading, child) {
+          return isLoading
               ? const Center(child: CircularProgressIndicator())
               : screens[_currentIndex];
         },
@@ -167,14 +230,10 @@ class BrandGridScreen extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Hero(
                         tag: 'brand-${brand.name}',
-                        child: Image.asset(
-                          brand.logoPath,
+                        child: UniversalImage(
+                          imagePath: brand.logoPath,
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            debugPrint('❌ Failed to load: ${brand.logoPath}');
-                            debugPrint('Brand: ${brand.name}');
-                            return const Icon(Icons.watch, size: 60);
-                          },
+                          errorWidget: const Icon(Icons.watch, size: 60),
                         ),
                       ),
                     ),

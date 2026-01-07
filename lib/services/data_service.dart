@@ -2,7 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:appcounter/models/watch.dart';
+import 'package:watch_store/models/watch.dart';
 
 class DataService {
   final String _watchBoxName = 'watchCache';
@@ -65,7 +65,21 @@ class DataService {
     }, SetOptions(merge: true));
   }
 
-  // Fetch data from Firestore
+  // Stream watches from Firestore
+  Stream<List<Watch>> streamWatches() {
+    return _productsCollection.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        // Ensure ID is set from doc ID if not in data
+        if (!data.containsKey('id')) {
+          data['id'] = doc.id;
+        }
+        return Watch.fromJson(data);
+      }).toList();
+    });
+  }
+
+  // Fetch data from Firestore (Keep as backup or initial load)
   Future<List<Watch>> fetchWatchesFromApi() async {
     try {
       final QuerySnapshot snapshot = await _productsCollection.get();
@@ -113,5 +127,24 @@ class DataService {
       // No data in cache
       return [];
     }
+  }
+  // --- Product CRUD ---
+
+  Future<void> addWatch(Watch watch) async {
+    // If id is empty or 'new', we let Firestore generate one, but Watch model has required ID.
+    // So we usually generate a new ID before creating the object, or use .doc().set().
+    await _productsCollection.doc(watch.id).set(watch.toJson());
+  }
+
+  Future<void> updateWatch(Watch watch) async {
+    await _productsCollection.doc(watch.id).update(watch.toJson());
+  }
+
+  Future<void> updateStock(String watchId, int newStock) async {
+    await _productsCollection.doc(watchId).update({'stock': newStock});
+  }
+
+  Future<void> deleteWatch(String watchId) async {
+    await _productsCollection.doc(watchId).delete();
   }
 }

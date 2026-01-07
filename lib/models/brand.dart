@@ -1,10 +1,21 @@
-// lib/models/brand.dart
+import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 class Brand {
   final String id;
   final String name;
   final String logoPath;
 
   const Brand({required this.id, required this.name, required this.logoPath});
+
+  bool get isNetworkImage => logoPath.startsWith('http');
+
+  ImageProvider get imageProvider {
+    if (isNetworkImage) {
+      return CachedNetworkImageProvider(logoPath);
+    }
+    return AssetImage(logoPath);
+  }
 }
 
 // Brand data with image paths

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/watch.dart';
 import '../controllers/app_controller.dart';
+import 'universal_image.dart';
 
 // 1. Changed to a StatelessWidget
 class WatchCard extends StatelessWidget {
@@ -40,19 +41,12 @@ class WatchCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      watch.imagePath,
+                    child: UniversalImage(
+                      imagePath: watch.imagePath,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        debugPrint('❌ Image failed: ${watch.imagePath}');
-                        return Center(
-                          child: Icon(
-                            Icons.watch,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
+                      errorWidget: const Center(
+                        child: Icon(Icons.watch, size: 40, color: Colors.grey),
+                      ),
                     ),
                   ),
                 ),
