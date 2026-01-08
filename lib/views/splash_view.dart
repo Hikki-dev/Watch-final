@@ -40,7 +40,9 @@ class _SplashViewState extends State<SplashView> {
         attempts++;
       }
 
-      Navigator.pushReplacementNamed(context, controller.homeRoute);
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, controller.homeRoute);
+      }
     } else {
       Navigator.pushReplacementNamed(context, '/login');
     }

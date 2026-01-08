@@ -7,6 +7,7 @@ import 'search_view.dart';
 import 'cart_view.dart';
 import 'profile_view.dart';
 import '../widgets/universal_image.dart';
+import 'mysql_products_view.dart';
 
 class HomeView extends StatefulWidget {
   // 2. The controller is no longer passed in
@@ -203,7 +204,21 @@ class BrandGridScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Watch Brands')),
+      appBar: AppBar(
+        title: const Text('Watch Brands'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.dns),
+            tooltip: 'SSP Integration (MySQL)',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MysqlProductsView()),
+              );
+            },
+          ),
+        ],
+      ),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

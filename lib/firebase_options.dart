@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '845214120914',
     projectId: 'watchapp-b657c',
     storageBucket: 'watchapp-b657c.firebasestorage.app',
+    iosClientId: '845214120914-8jlj6lq37hcdf2hse2dilotti7ksk42a.apps.googleusercontent.com',
     iosBundleId: 'com.example.appcounter',
   );
 
@@ -63,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '845214120914',
     projectId: 'watchapp-b657c',
     storageBucket: 'watchapp-b657c.firebasestorage.app',
+    iosClientId: '845214120914-8jlj6lq37hcdf2hse2dilotti7ksk42a.apps.googleusercontent.com',
     iosBundleId: 'com.example.appcounter',
   );
 
@@ -75,4 +77,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'watchapp-b657c.firebasestorage.app',
     measurementId: 'G-VE743DSG3V',
   );
+
 }

@@ -98,6 +98,7 @@ class _AdminProductFormViewState extends State<AdminProductFormView> {
     try {
       // 1. Process Image
       final imageString = await _processImage();
+      if (!mounted) return;
       if (imageString == null && _currentImageUrl == null) {
         ScaffoldMessenger.of(
           context,

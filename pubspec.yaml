@@ -12,7 +12,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # 2. For Firebase
-  firebase_core: ^4.2.1
+  firebase_core: ^4.3.0
   firebase_auth: ^6.1.2
   cloud_firestore: ^6.1.0
 
@@ -21,6 +21,7 @@ dependencies:
 
   # 4. For Data & API
   http: ^1.2.1
+  uuid: ^4.0.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   path_provider: ^2.1.3

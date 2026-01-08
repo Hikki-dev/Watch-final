@@ -67,7 +67,7 @@ class WatchDetailView extends StatelessWidget {
           style: watch.isInStock
               ? null
               : ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.grey),
+                  backgroundColor: WidgetStateProperty.all(Colors.grey),
                 ),
           child: Text(watch.isInStock ? 'Add to Cart' : 'Out of Stock'),
         ),
