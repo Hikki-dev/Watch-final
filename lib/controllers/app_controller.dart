@@ -33,7 +33,7 @@ class AppController extends ChangeNotifier {
   bool isUploadingProfileImage = false; // New state for upload loading
   String? _userFullName; // For storing the name from registration
 
-  // --- Firestore Live Data Fields ---
+  // --- API Data Subscription Fields ---
   StreamSubscription<Map<String, dynamic>>? _userDataSubscription;
 
   // Private fields to hold streamed data from Firestore
@@ -135,7 +135,8 @@ class AppController extends ChangeNotifier {
   }
 
   // Update user state when auth changes
-  void _onAuthStateChanged(fb.User? firebaseUser) {
+  // Update user state when auth changes
+  void _onAuthStateChanged(fb.User? firebaseUser) async {
     _userDataSubscription?.cancel();
     _userDataSubscription = null;
 
@@ -147,32 +148,32 @@ class AppController extends ChangeNotifier {
       _dbCartItems.clear();
       _dbRole = null;
     } else {
-      // Start listening to live user data from Firestore
-      _userDataSubscription = _dataService
-          .streamUserData(firebaseUser.uid)
-          .listen((userData) {
-            _dbFavorites =
-                (userData['favorites'] as List?)
-                    ?.map((e) => e.toString())
-                    .toSet() ??
-                {};
-            _dbProfileImagePath = userData['profileImagePath'] as String?;
-            _dbCartItems =
-                (userData['cartItems'] as List?)
-                    ?.map((e) => Map<String, dynamic>.from(e))
-                    .toList() ??
-                [];
-            _dbRole = userData['role'] as String?;
+      // API Implementation: Fetch full user profile once on login
+      // Ideally this should be polled or re-fetched when actions occur
+      try {
+        final userData = await _dataService.getUserData();
+        if (userData.isNotEmpty) {
+          _dbFavorites =
+              (userData['favorites'] as List?)
+                  ?.map((e) => e.toString())
+                  .toSet() ??
+              {};
+          _dbProfileImagePath = userData['profileImagePath'] as String?;
+          _dbCartItems =
+              (userData['cartItems'] as List?)
+                  ?.map((e) => Map<String, dynamic>.from(e))
+                  .toList() ??
+              [];
+          _dbRole = userData['role'] as String?;
+        }
+      } catch (e) {
+        debugPrint('Error fetching user data from API: $e');
+      }
 
-            // Mark data as loaded once we have the first snapshot
-            isUserDataLoaded = true;
-
-            _updateCurrentUserModel(firebaseUser);
-            _updateLocalCartFromDb();
-            notifyListeners();
-          });
-
+      isUserDataLoaded = true;
       _updateCurrentUserModel(firebaseUser);
+      _updateLocalCartFromDb();
+      notifyListeners();
     }
     notifyListeners();
   }
@@ -384,7 +385,7 @@ class AppController extends ChangeNotifier {
           currentUser!.email,
           imageString,
         );
-        debugPrint("Firestore updated with new Base64 Profile Image.");
+        debugPrint("API updated with new Base64 Profile Image.");
       }
     } catch (e) {
       debugPrint("❌ Profile Image Update Error: $e");

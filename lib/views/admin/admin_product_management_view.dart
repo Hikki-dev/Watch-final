@@ -1,12 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/watch.dart';
 import 'admin_product_form_view.dart';
 import '../../services/data_service.dart';
 import '../../widgets/universal_image.dart';
 
-class AdminProductManagementView extends StatelessWidget {
+class AdminProductManagementView extends StatefulWidget {
   const AdminProductManagementView({super.key});
+
+  @override
+  State<AdminProductManagementView> createState() =>
+      _AdminProductManagementViewState();
+}
+
+class _AdminProductManagementViewState
+    extends State<AdminProductManagementView> {
+  late Future<List<Watch>> _productsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshProducts();
+  }
+
+  void _refreshProducts() {
+    setState(() {
+      _productsFuture = DataService().fetchWatchesFromApi();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +34,15 @@ class AdminProductManagementView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Manage Products'),
         backgroundColor: Colors.redAccent,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _refreshProducts,
+          ),
+        ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('products').snapshots(),
+      body: FutureBuilder<List<Watch>>(
+        future: _productsFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -24,18 +50,15 @@ class AdminProductManagementView extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No products found.'));
           }
 
-          final docs = snapshot.data!.docs;
+          final watches = snapshot.data!;
           return ListView.builder(
-            itemCount: docs.length,
+            itemCount: watches.length,
             itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              // Ensure ID is present
-              data['id'] = docs[index].id;
-              final watch = Watch.fromJson(data);
+              final watch = watches[index];
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -58,14 +81,15 @@ class AdminProductManagementView extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          Navigator.push(
+                        onPressed: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (c) =>
                                   AdminProductFormView(watch: watch),
                             ),
                           );
+                          _refreshProducts();
                         },
                       ),
                       IconButton(
@@ -81,11 +105,12 @@ class AdminProductManagementView extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (c) => const AdminProductFormView()),
           );
+          _refreshProducts();
         },
         child: const Icon(Icons.add),
       ),
@@ -113,10 +138,11 @@ class AdminProductManagementView extends StatelessWidget {
 
     if (confirm == true) {
       await DataService().deleteWatch(id);
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Product Deleted')));
+        _refreshProducts();
       }
     }
   }

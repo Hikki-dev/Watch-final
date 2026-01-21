@@ -9,7 +9,8 @@ import 'package:watch_store/models/watch.dart';
 class DataService {
   final String _watchBoxName = 'watchCache';
   final String baseUrl =
-      dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:8000/api';
+      dotenv.env['API_BASE_URL'] ??
+      'https://laravel-watch-production.up.railway.app/api';
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -209,9 +210,9 @@ class DataService {
                 .toString(), // Integers in MySQL, String in Watch ID
             'name': json['name'],
             'brand': json['brand'] ?? 'Generic',
-            'price': (json['price'] is int)
-                ? (json['price'] as int).toDouble()
-                : json['price'].toDouble(),
+            'price': (json['price'] is num)
+                ? (json['price'] as num).toDouble()
+                : double.tryParse(json['price'].toString()) ?? 0.0,
             'description': json['description'],
             'category': json['category_id'].toString(), // Mapping ID or name?
             'imagePath':
@@ -268,9 +269,100 @@ class DataService {
     String? imageUrl,
   ) async {}
 
-  // Not used in Client App usually
-  Future<void> addWatch(Watch watch) async {}
-  Future<void> updateWatch(Watch watch) async {}
-  Future<void> updateStock(String watchId, int newStock) async {}
-  Future<void> deleteWatch(String watchId) async {}
+  // --- Admin API Methods ---
+
+  Future<List<Map<String, dynamic>>> getAllUsers() async {
+    final token = await _getToken();
+    if (token == null) return [];
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/admin/users'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['data'] != null) {
+          return List<Map<String, dynamic>>.from(data['data']);
+        }
+      }
+    } catch (e) {
+      debugPrint("API Get All Users Error: $e");
+    }
+    return [];
+  }
+
+  Future<void> updateUserRole(String userId, String newRole) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.patch(
+        Uri.parse('$baseUrl/admin/users/$userId/role'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'role': newRole}),
+      );
+    } catch (e) {
+      debugPrint("API Update User Role Error: $e");
+      rethrow;
+    }
+  }
+
+  Future<void> deleteUser(String userId) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/admin/users/$userId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint("API Delete User Error: $e");
+      rethrow;
+    }
+  }
+
+  // --- Watch Management Methods ---
+
+  Future<void> addWatch(Watch watch) async {
+    // Implement Add Watch API call if needed for Admin
+  }
+
+  Future<void> updateWatch(Watch watch) async {
+    // Implement Update Watch API call
+  }
+
+  Future<void> updateStock(String watchId, int newStock) async {
+    // Implement Update Stock API call
+  }
+
+  Future<void> deleteWatch(String watchId) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/products/$watchId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint("API Delete Watch Error: $e");
+      rethrow;
+    }
+  }
 }

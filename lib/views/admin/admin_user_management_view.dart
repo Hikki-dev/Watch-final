@@ -1,8 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../services/data_service.dart';
 
-class AdminUserManagementView extends StatelessWidget {
+class AdminUserManagementView extends StatefulWidget {
   const AdminUserManagementView({super.key});
+
+  @override
+  State<AdminUserManagementView> createState() =>
+      _AdminUserManagementViewState();
+}
+
+class _AdminUserManagementViewState extends State<AdminUserManagementView> {
+  late Future<List<Map<String, dynamic>>> _usersFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshUsers();
+  }
+
+  void _refreshUsers() {
+    setState(() {
+      _usersFuture = DataService().getAllUsers();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,9 +30,12 @@ class AdminUserManagementView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Manage Users'),
         backgroundColor: Colors.redAccent,
+        actions: [
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _refreshUsers),
+        ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _usersFuture,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -22,17 +45,17 @@ class AdminUserManagementView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No users found.'));
           }
 
-          final docs = snapshot.data!.docs;
+          final users = snapshot.data!;
 
           return ListView.builder(
-            itemCount: docs.length,
+            itemCount: users.length,
             itemBuilder: (context, index) {
-              final data = docs[index].data() as Map<String, dynamic>;
-              final docId = docs[index].id;
+              final data = users[index];
+              final userId = data['id'].toString();
               final email = data['email'] ?? 'No Email';
               final role = data['role'] ?? 'customer';
               final name = data['name'] ?? 'No Name';
@@ -43,7 +66,7 @@ class AdminUserManagementView extends StatelessWidget {
                   leading: CircleAvatar(
                     backgroundColor: _getColorForRole(role),
                     child: Text(
-                      role[0].toUpperCase(),
+                      role.isNotEmpty ? role[0].toUpperCase() : '?',
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -52,9 +75,9 @@ class AdminUserManagementView extends StatelessWidget {
                   trailing: PopupMenuButton<String>(
                     onSelected: (value) {
                       if (value == 'delete') {
-                        _deleteUser(context, docId);
+                        _deleteUser(context, userId);
                       } else {
-                        _updateRole(context, docId, value);
+                        _updateRole(context, userId, value);
                       }
                     },
                     itemBuilder: (context) => [
@@ -106,16 +129,15 @@ class AdminUserManagementView extends StatelessWidget {
     String newRole,
   ) async {
     try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).update({
-        'role': newRole,
-      });
-      if (context.mounted) {
+      await DataService().updateUserRole(userId, newRole);
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Updated role to $newRole')));
+        _refreshUsers();
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error updating role: $e')));
@@ -129,7 +151,7 @@ class AdminUserManagementView extends StatelessWidget {
       builder: (context) => AlertDialog(
         title: const Text('Delete User?'),
         content: const Text(
-          'This will remove the user data from Firestore. It will NOT delete the user from Firebase Auth (requires Admin SDK).',
+          'This will remove the user data from the Database.',
         ),
         actions: [
           TextButton(
@@ -146,17 +168,15 @@ class AdminUserManagementView extends StatelessWidget {
 
     if (confirm == true) {
       try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .delete();
-        if (context.mounted) {
+        await DataService().deleteUser(userId);
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('User data deleted')));
+          _refreshUsers();
         }
       } catch (e) {
-        if (context.mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text('Error deleting user: $e')));
