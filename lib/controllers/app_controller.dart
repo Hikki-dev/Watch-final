@@ -435,7 +435,13 @@ class AppController extends ChangeNotifier {
 
   Future<int> getBatteryLevel() async {
     try {
-      return await _battery.batteryLevel;
+      int level = await _battery.batteryLevel;
+      // On some platforms (especially Web), it might return 0 if unsupported or blocked.
+      // Treat 0 as -1 (unknown) unless we are sure it's dead (unlikely while app is running).
+      if (level == 0 && kIsWeb) {
+        return -1;
+      }
+      return level;
     } catch (e) {
       debugPrint("Battery Error: $e");
       return -1;

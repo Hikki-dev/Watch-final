@@ -115,11 +115,15 @@ class ProfileView extends StatelessWidget {
               onTap: () => _showImageSourceActionSheet(context),
               child: CircleAvatar(
                 radius: 50,
-                child: UniversalImage(
-                  imagePath: user.profileImagePath,
-                  fit: BoxFit.cover,
-                  errorWidget: const Icon(Icons.person, size: 40),
-                  placeholder: const CircularProgressIndicator(),
+                child: ClipOval(
+                  child: UniversalImage(
+                    imagePath: user.profileImagePath,
+                    width: 100, // 2 * radius
+                    height: 100,
+                    fit: BoxFit.cover,
+                    errorWidget: const Icon(Icons.person, size: 40),
+                    placeholder: const CircularProgressIndicator(),
+                  ),
                 ),
               ),
             ),

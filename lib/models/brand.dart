@@ -16,6 +16,17 @@ class Brand {
     }
     return AssetImage(logoPath);
   }
+
+  static String? getLogoForBrand(String name) {
+    try {
+      final brand = brands.firstWhere(
+        (b) => b.name.toLowerCase() == name.toLowerCase(),
+      );
+      return brand.logoPath;
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 // Brand data with image paths
