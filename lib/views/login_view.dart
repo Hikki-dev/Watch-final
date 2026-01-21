@@ -28,13 +28,47 @@ class _LoginViewState extends State<LoginView> {
     final controller = context.read<AppController>();
 
     try {
+      // 1. Firebase/Google Sign-In
       final userCredential = await authService.signInWithGoogle();
 
       if (!mounted) return;
 
+      // 2. Backend Login (Laravel API)
+      final user = userCredential.user;
+      if (user != null && user.email != null) {
+        // Try to get Google ID from provider data
+        String? googleId;
+        for (var profile in user.providerData) {
+          if (profile.providerId == 'google.com') {
+            googleId = profile.uid;
+            break;
+          }
+        }
+
+        final token = await authService.loginToBackend(
+          user.email!,
+          user.displayName,
+          googleId,
+        );
+
+        if (token == null) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Failed to connect to server. Please try again.'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        // 3. Force Data Refresh from Backend
+        controller.refreshUserData();
+      }
+
       controller.setUserFullName(userCredential.user?.displayName ?? 'User');
 
-      // Wait for Firestore to sync role
+      // Wait for Data to sync
       int attempts = 0;
       while (!controller.isUserDataLoaded && attempts < 20) {
         await Future.delayed(const Duration(milliseconds: 200));

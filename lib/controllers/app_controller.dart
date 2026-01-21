@@ -129,6 +129,11 @@ class AppController extends ChangeNotifier {
     }
   }
 
+  // Public method to force refresh user data (called after backend login)
+  void refreshUserData() {
+    _onAuthStateChanged(authService.currentUser);
+  }
+
   // Update user state when auth changes
   void _onAuthStateChanged(fb.User? firebaseUser) {
     _userDataSubscription?.cancel();
@@ -272,48 +277,56 @@ class AppController extends ChangeNotifier {
 
   void addToCart(Watch watch) {
     if (currentUser == null) return;
+
+    // Optimistic Update (Local)
     final mutableCart = _getCurrentMutableCart();
     mutableCart.addWatch(watch, quantity: 1);
-    _dataService.updateCart(
-      currentUser!.id,
-      currentUser!.name,
-      currentUser!.email,
-      _cartToDbFormat(mutableCart),
-    );
+
+    // Sync with Server
+    _dataService.addToCartApi(watch.id, 1);
+
+    // Update local state to reflect UI change immediately
+    // Note: Ideally we await the API and then update, but for responsiveness we do this.
+    // We should probably re-fetch cart after a while or on error.
+    _dbCartItems = _cartToDbFormat(mutableCart);
+    _updateLocalCartFromDb(); // Refreshes 'cart' object
+    notifyListeners();
   }
 
   void removeFromCart(String watchId) {
     if (currentUser == null) return;
+
     final mutableCart = _getCurrentMutableCart();
     mutableCart.removeWatch(watchId);
-    _dataService.updateCart(
-      currentUser!.id,
-      currentUser!.name,
-      currentUser!.email,
-      _cartToDbFormat(mutableCart),
-    );
+
+    _dataService.removeFromCartApi(watchId);
+
+    _dbCartItems = _cartToDbFormat(mutableCart);
+    _updateLocalCartFromDb();
+    notifyListeners();
   }
 
   void updateCartQuantity(String watchId, int quantity) {
     if (currentUser == null) return;
+
     final mutableCart = _getCurrentMutableCart();
     mutableCart.updateQuantity(watchId, quantity);
-    _dataService.updateCart(
-      currentUser!.id,
-      currentUser!.name,
-      currentUser!.email,
-      _cartToDbFormat(mutableCart),
-    );
+
+    _dataService.updateCartQuantityApi(watchId, quantity);
+
+    _dbCartItems = _cartToDbFormat(mutableCart);
+    _updateLocalCartFromDb();
+    notifyListeners();
   }
 
   Future<void> clearCart() async {
     if (currentUser == null) return;
-    await _dataService.updateCart(
-      currentUser!.id,
-      currentUser!.name,
-      currentUser!.email,
-      [],
-    );
+
+    await _dataService.clearCartApi();
+
+    cart.clear();
+    _dbCartItems.clear();
+    notifyListeners();
   }
 
   void toggleFavorite(String watchId) {

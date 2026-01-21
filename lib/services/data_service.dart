@@ -1,102 +1,236 @@
-// lib/services/data_service.dart
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watch_store/models/watch.dart';
 
 class DataService {
   final String _watchBoxName = 'watchCache';
-  final CollectionReference _productsCollection = FirebaseFirestore.instance
-      .collection('products');
-  final CollectionReference _usersCollection = FirebaseFirestore.instance
-      .collection('users');
+  final String baseUrl =
+      dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:8000/api';
 
-  // Get live user data (Favorites/Profile Image Path/Cart Items)
-  Stream<Map<String, dynamic>> streamUserData(String userId) {
-    return _usersCollection.doc(userId).snapshots().map((snapshot) {
-      if (!snapshot.exists) {
-        return {};
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  // --- User Data (Replaces Firestore Stream) ---
+
+  // Fetches user profile, role, and cart in one go (or separate calls if needed)
+  // For now, we'll fetch /api/user and /api/cart
+  Future<Map<String, dynamic>> getUserData() async {
+    final token = await _getToken();
+    if (token == null) return {};
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '$baseUrl/user',
+        ), // You might need a dedicated endpoint for full profile + cart
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final userJson = jsonDecode(response.body);
+
+        // Also fetch cart
+        final cartResponse = await http.get(
+          Uri.parse('$baseUrl/cart'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+          },
+        );
+
+        List<dynamic> cartItems = [];
+        if (cartResponse.statusCode == 200) {
+          final cartData = jsonDecode(cartResponse.body);
+          // Transform API cart response to the format AppController expects
+          // API returns: { data: { cart_items: [ { product_id: ..., quantity: ..., product: {...} } ] } }
+          // AppController expects: List<Map<String, dynamic>> [{'watchId': '...', 'quantity': ...}]
+
+          if (cartData['data'] != null &&
+              cartData['data']['cart_items'] != null) {
+            cartItems = (cartData['data']['cart_items'] as List).map((item) {
+              return {
+                'watchId': item['product']['id']
+                    .toString(), // Ensure ID is string to match Watch model
+                'quantity': item['quantity'],
+              };
+            }).toList();
+          }
+        }
+
+        return {
+          'name': userJson['name'],
+          'email': userJson['email'],
+          // 'profileImagePath': userJson['profile_photo_url'], // If you have this field
+          'role': userJson['role'],
+          'cartItems': cartItems,
+          // 'favorites': ... // If you add favorites API
+        };
       }
-      return snapshot.data() as Map<String, dynamic>;
-    });
+    } catch (e) {
+      debugPrint("API Get User Data Error: $e");
+    }
+    return {};
   }
 
-  // Update user's favorites in Firestore (MODIFIED)
-  Future<void> updateFavorites(
-    String userId,
-    String userName, // <-- ADDED
-    String userEmail, // <-- ADDED
-    Set<String> favorites,
-  ) async {
-    // Firestore stores Sets as Lists in the database
-    await _usersCollection.doc(userId).set({
-      'name': userName, // <-- SAVED
-      'email': userEmail, // <-- SAVED
-      'favorites': favorites.toList(),
-    }, SetOptions(merge: true));
+  // Stream is removed because API is request-response.
+  // We will poll or just fetch on load.
+  // For compatibility with AppController, we can return a Stream that emits once.
+  Stream<Map<String, dynamic>> streamUserData(String userId) async* {
+    // Initial fetch
+    yield await getUserData();
+    // In a real app, you might poll periodically or use websockets
   }
 
-  // Update user's profile image URL in Firestore (MODIFIED)
-  Future<void> updateProfileImagePath(
-    String userId,
-    String userName, // <-- ADDED
-    String userEmail, // <-- ADDED
-    String? imageUrl,
-  ) async {
-    await _usersCollection.doc(userId).set({
-      'name': userName, // <-- SAVED
-      'email': userEmail, // <-- SAVED
-      'profileImagePath': imageUrl,
-    }, SetOptions(merge: true));
-  }
+  // --- Cart Management (API) ---
 
-  // Update user's cart items in Firestore (MODIFIED)
-  // cartItems should be a List of Maps: [{'watchId': '123', 'quantity': 2}]
   Future<void> updateCart(
     String userId,
-    String userName, // <-- ADDED
-    String userEmail, // <-- ADDED
+    String userName,
+    String userEmail,
     List<Map<String, dynamic>> cartItems,
   ) async {
-    await _usersCollection.doc(userId).set({
-      'name': userName, // <-- SAVED
-      'email': userEmail, // <-- SAVED
-      'cartItems': cartItems,
-    }, SetOptions(merge: true));
+    debugPrint("Warning: updateCart called. Please use granular API methods.");
   }
 
-  // Stream watches from Firestore
-  Stream<List<Watch>> streamWatches() {
-    return _productsCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        // Ensure ID is set from doc ID if not in data
-        if (!data.containsKey('id')) {
-          data['id'] = doc.id;
-        }
-        return Watch.fromJson(data);
-      }).toList();
-    });
-  }
+  // New specific methods for API interaction
+  Future<void> addToCartApi(String watchId, int quantity) async {
+    final token = await _getToken();
+    if (token == null) return;
 
-  // Fetch data from Firestore (Keep as backup or initial load)
-  Future<List<Watch>> fetchWatchesFromApi() async {
     try {
-      final QuerySnapshot snapshot = await _productsCollection.get();
-      final List<Watch> watches = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        return Watch.fromJson(data);
-      }).toList();
-
-      await saveWatchesToLocalDb(watches);
-      return watches;
+      await http.post(
+        Uri.parse('$baseUrl/cart/add/$watchId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'quantity': quantity}),
+      );
     } catch (e) {
-      debugPrint("Firestore Fetch Error: $e");
-      return [];
+      debugPrint("API Add to Cart Error: $e");
     }
   }
 
-  // Save List<Watch> to local DB (Hive)
+  Future<void> removeFromCartApi(String watchId) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/cart/product/$watchId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint("API Remove from Cart Error: $e");
+    }
+  }
+
+  Future<void> updateCartQuantityApi(String watchId, int quantity) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.patch(
+        Uri.parse('$baseUrl/cart/product/$watchId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'quantity': quantity}),
+      );
+    } catch (e) {
+      debugPrint("API Update Cart Quantity Error: $e");
+    }
+  }
+
+  Future<void> clearCartApi() async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/cart/clear'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint("API Clear Cart Error: $e");
+    }
+  }
+
+  // --- Product Data (API) ---
+
+  // Stream watches replaced by Fetch
+  // We can keep the stream signature but just emit once for compatibility or refactor Controller.
+  Stream<List<Watch>> streamWatches() async* {
+    while (true) {
+      yield await fetchWatchesFromApi();
+      await Future.delayed(const Duration(seconds: 30)); // Poll every 30s
+    }
+    // Alternatively just yield once:
+    // yield await fetchWatchesFromApi();
+  }
+
+  Future<List<Watch>> fetchWatchesFromApi() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/products'));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Assuming API returns { data: [...] } or just [...]
+        // Adjust based on your actual API response structure (ProductController check needed)
+
+        // ProductController::index returns: return response()->json(['data' => $products]); ?
+        // Or via Resource... usually 'data' wrapper.
+
+        final List<dynamic> productsJson = (data['data'] != null)
+            ? data['data']
+            : data;
+
+        final List<Watch> watches = productsJson.map((json) {
+          return Watch.fromJson({
+            'id': json['id']
+                .toString(), // Integers in MySQL, String in Watch ID
+            'name': json['name'],
+            'brand': json['brand'] ?? 'Generic',
+            'price': (json['price'] is int)
+                ? (json['price'] as int).toDouble()
+                : json['price'].toDouble(),
+            'description': json['description'],
+            'category': json['category_id'].toString(), // Mapping ID or name?
+            'imagePath':
+                json['image'], // Ensure this is full URL or handle in UI
+            'stock': json['stock'],
+            // 'isFeatured': json['is_featured'] == 1,
+          });
+        }).toList();
+
+        await saveWatchesToLocalDb(watches);
+        return watches;
+      }
+    } catch (e) {
+      debugPrint("API Fetch Watches Error: $e");
+    }
+    return [];
+  }
+
+  // --- Local DB (Hive) - Keep for caching ---
   Future<void> saveWatchesToLocalDb(List<Watch> watches) async {
     final box = await Hive.openBox(_watchBoxName);
     final List<Map<String, dynamic>> watchMaps = watches
@@ -105,46 +239,38 @@ class DataService {
     await box.put('all_watches', watchMaps);
   }
 
-  // Get data from local DB (Hive)
   Future<List<Watch>> getWatchesFromLocalDb() async {
     final box = await Hive.openBox(_watchBoxName);
     final List<dynamic>? watchMaps = box.get('all_watches');
 
     if (watchMaps != null) {
-      // --- THIS IS THE FIX ---
-      // We can't just 'cast'. We must 'map' and convert each item.
       final List<Watch> watches = watchMaps.map((item) {
-        // 1. 'item' is a LinkedMap<dynamic, dynamic>
-        // 2. We create a new Map<String, dynamic> from it.
         final Map<String, dynamic> jsonMap = Map<String, dynamic>.from(item);
-        // 3. Now we can safely pass it to fromJson
         return Watch.fromJson(jsonMap);
       }).toList();
-      // -----------------------
-
       return watches;
     } else {
-      // No data in cache
       return [];
     }
   }
-  // --- Product CRUD ---
 
-  Future<void> addWatch(Watch watch) async {
-    // If id is empty or 'new', we let Firestore generate one, but Watch model has required ID.
-    // So we usually generate a new ID before creating the object, or use .doc().set().
-    await _productsCollection.doc(watch.id).set(watch.toJson());
-  }
+  // Stubs for other methods to prevent compilation errors
+  Future<void> updateFavorites(
+    String userId,
+    String userName,
+    String userEmail,
+    Set<String> favorites,
+  ) async {}
+  Future<void> updateProfileImagePath(
+    String userId,
+    String userName,
+    String userEmail,
+    String? imageUrl,
+  ) async {}
 
-  Future<void> updateWatch(Watch watch) async {
-    await _productsCollection.doc(watch.id).update(watch.toJson());
-  }
-
-  Future<void> updateStock(String watchId, int newStock) async {
-    await _productsCollection.doc(watchId).update({'stock': newStock});
-  }
-
-  Future<void> deleteWatch(String watchId) async {
-    await _productsCollection.doc(watchId).delete();
-  }
+  // Not used in Client App usually
+  Future<void> addWatch(Watch watch) async {}
+  Future<void> updateWatch(Watch watch) async {}
+  Future<void> updateStock(String watchId, int newStock) async {}
+  Future<void> deleteWatch(String watchId) async {}
 }

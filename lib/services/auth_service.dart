@@ -1,12 +1,64 @@
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart'; // Used for kIsWeb
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart' as gsi;
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final String baseUrl =
+      dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:8000/api';
 
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
   User? get currentUser => _firebaseAuth.currentUser;
+
+  // --- Backend Integration ---
+
+  Future<String?> loginToBackend(
+    String email,
+    String? name,
+    String? googleId,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/google'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'email': email, 'name': name, 'google_id': googleId}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['data']['access_token'];
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+          return token;
+        }
+      }
+      debugPrint("Backend Login Failed: ${response.body}");
+      return null;
+    } catch (e) {
+      debugPrint("Backend Connection Error: $e");
+      return null;
+    }
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
+  }
+
+  Future<void> logoutBackend() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token');
+  }
+
+  // --- Firebase Auth Methods ---
 
   // Sign in (Refactored to throw errors)
   Future<UserCredential> signInWithEmail({
@@ -107,6 +159,7 @@ class AuthService {
     } catch (e) {
       // Ignore errors here if not signed in with Google
     }
+    await logoutBackend(); // Clear backend token
     await _firebaseAuth.signOut();
   }
 }

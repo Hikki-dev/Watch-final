@@ -47,5 +47,5 @@ app.*.map.json
 
 .env
 
-firebase_options.dart
+
 .vercel

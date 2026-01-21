@@ -7,6 +7,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'controllers/app_controller.dart';
 import 'services/auth_service.dart';
 import 'views/splash_view.dart';
@@ -25,6 +27,7 @@ Future<void> main() async {
     () async {
       WidgetsFlutterBinding.ensureInitialized();
       try {
+        await dotenv.load(fileName: ".env");
         await Firebase.initializeApp(
           options: DefaultFirebaseOptions.currentPlatform,
         );
