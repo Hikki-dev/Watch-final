@@ -29,7 +29,7 @@ class _SplashViewState extends State<SplashView> {
     final controller = context.read<AppController>();
 
     // 3. Check if user is logged in
-    final user = authService.currentUser;
+    final user = controller.currentUser;
 
     if (user != null) {
       // 4. Wait for Controller to fully load user data (Strict Sync)

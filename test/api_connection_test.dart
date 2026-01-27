@@ -51,6 +51,7 @@ void main() {
         print(
           'Connection Successful! Server responded with code: ${response.statusCode}',
         );
+        print('Error Details: ${response.body}');
       }
     } catch (e) {
       fail('Could not connect to backend: $e');

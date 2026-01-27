@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  FirebaseAuth get _firebaseAuth => FirebaseAuth.instance;
   final String baseUrl =
       dotenv.env['API_BASE_URL'] ??
       'https://laravel-watch-production.up.railway.app/api';

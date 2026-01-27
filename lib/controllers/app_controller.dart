@@ -19,7 +19,7 @@ class AppController extends ChangeNotifier {
   final AuthService authService;
 
   // Services
-  final DataService _dataService = DataService();
+  final DataService _dataService;
   final Connectivity _connectivity = Connectivity();
 
   final Battery _battery = Battery();
@@ -43,7 +43,8 @@ class AppController extends ChangeNotifier {
   String? _dbRole;
 
   // Constructor
-  AppController({required this.authService}) {
+  AppController({required this.authService, DataService? dataService})
+    : _dataService = dataService ?? DataService() {
     // Listen to auth changes
     authService.authStateChanges.listen(_onAuthStateChanged);
     _onAuthStateChanged(authService.currentUser);
