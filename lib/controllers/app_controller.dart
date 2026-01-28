@@ -1,7 +1,7 @@
 // lib/controllers/app_controller.dart
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:battery_plus/battery_plus.dart';
@@ -20,7 +20,6 @@ class AppController extends ChangeNotifier {
 
   // Services
   final DataService _dataService;
-  final Connectivity _connectivity = Connectivity();
 
   final Battery _battery = Battery();
 
@@ -68,56 +67,49 @@ class AppController extends ChangeNotifier {
         // Continue to fetch from API even if local load fails
       }
 
-      // 2. Check for network connectivity
-      final List<ConnectivityResult> connectivityResult = await _connectivity
-          .checkConnectivity();
-      final bool isOnline =
-          connectivityResult.isNotEmpty &&
-          !connectivityResult.contains(ConnectivityResult.none);
+      // 3. Start listening to Watch Data Stream
+      // Cancel existing subscription if any to avoid duplicates
+      _userDataSubscription?.cancel();
 
-      if (isOnline) {
-        // 3. Start listening to Watch Data Stream
-        // Cancel existing subscription if any to avoid duplicates
-        _userDataSubscription?.cancel();
-
-        // Note: We're using a separate subscription for global watches, ideally should be a field
-        // But for now we'll just listen. In a production app, we'd store this subscription.
-        _dataService.streamWatches().listen(
-          (watches) async {
-            if (watches.isNotEmpty) {
-              // Only update if data is actually different to avoid rebuilds
-              // A simple check is length or first item ID, deeply checking equality is expensive
-              bool hasChanged = allWatches.length != watches.length;
-              if (!hasChanged && allWatches.isNotEmpty) {
-                // rudimentary check: if first item changed
-                hasChanged = allWatches.first.id != watches.first.id;
-              }
-
-              if (hasChanged || allWatches.isEmpty) {
-                allWatches = watches;
-                // Update local cache in background
-                _dataService.saveWatchesToLocalDb(allWatches);
-                notifyListeners();
-              }
+      // Note: We're using a separate subscription for global watches, ideally should be a field
+      // But for now we'll just listen. In a production app, we'd store this subscription.
+      _dataService.streamWatches().listen(
+        (watches) async {
+          if (watches.isNotEmpty) {
+            // Only update if data is actually different to avoid rebuilds
+            // A simple check is length or first item ID, deeply checking equality is expensive
+            bool hasChanged = allWatches.length != watches.length;
+            if (!hasChanged && allWatches.isNotEmpty) {
+              // rudimentary check: if first item changed
+              hasChanged = allWatches.first.id != watches.first.id;
             }
-          },
-          onError: (e) {
-            debugPrint('Error streaming watches: $e');
-          },
-        );
 
-        // 4. Also fetch once to ensure we have data immediately if stream is slow
-        try {
-          final apiWatches = await _dataService.fetchWatchesFromApi();
-          if (apiWatches.isNotEmpty) {
-            allWatches = apiWatches;
-            // 4. Save fresh data to local DB
-            await _dataService.saveWatchesToLocalDb(allWatches);
-            notifyListeners();
+            if (hasChanged || allWatches.isEmpty) {
+              allWatches = watches;
+              // Update local cache in background
+              _dataService.saveWatchesToLocalDb(allWatches);
+              notifyListeners();
+            }
           }
-        } catch (e) {
-          debugPrint('Error fetching from API: $e');
+        },
+        onError: (e) {
+          debugPrint('Error streaming watches: $e');
+        },
+      );
+
+      // 4. Also fetch once to ensure we have data immediately if stream is slow
+      try {
+        debugPrint('AppController: Fetching watches from API...');
+        final apiWatches = await _dataService.fetchWatchesFromApi();
+        debugPrint('AppController: Fetched ${apiWatches.length} watches.');
+        if (apiWatches.isNotEmpty) {
+          allWatches = apiWatches;
+          // 4. Save fresh data to local DB
+          await _dataService.saveWatchesToLocalDb(allWatches);
+          notifyListeners();
         }
+      } catch (e) {
+        debugPrint('Error fetching from API: $e');
       }
 
       // Re-trigger auth listener to ensure data is synced
@@ -154,11 +146,12 @@ class AppController extends ChangeNotifier {
       try {
         final userData = await _dataService.getUserData();
         if (userData.isNotEmpty) {
-          _dbFavorites =
-              (userData['favorites'] as List?)
-                  ?.map((e) => e.toString())
-                  .toSet() ??
-              {};
+          // Fetch favorites separately or rely on them being part of user endpoint?
+          // DataService.getUserData currently returns a placeholder for favorites.
+          // Let's fetch them explicitly to be safe.
+          final favorites = await _dataService.fetchFavoritesApi();
+          _dbFavorites = favorites;
+
           _dbProfileImagePath = userData['profileImagePath'] as String?;
           _dbCartItems =
               (userData['cartItems'] as List?)
@@ -333,18 +326,19 @@ class AppController extends ChangeNotifier {
 
   void toggleFavorite(String watchId) {
     if (currentUser == null) return;
-    final newFavorites = Set<String>.from(_dbFavorites);
-    if (newFavorites.contains(watchId)) {
-      newFavorites.remove(watchId);
+
+    // Optimistic Update
+    if (_dbFavorites.contains(watchId)) {
+      _dbFavorites.remove(watchId);
+      _dataService.removeFavoriteApi(watchId);
     } else {
-      newFavorites.add(watchId);
+      _dbFavorites.add(watchId);
+      _dataService.addFavoriteApi(watchId);
     }
-    _dataService.updateFavorites(
-      currentUser!.id,
-      currentUser!.name,
-      currentUser!.email,
-      newFavorites,
-    );
+
+    // Update local user model immediately
+    _updateCurrentUserModel(authService.currentUser);
+    notifyListeners();
   }
 
   bool isFavorite(String watchId) {

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart'; // 1. Import Provider
 import '../controllers/app_controller.dart';
 import '../models/watch.dart'; // Import the Watch model
 import '../widgets/universal_image.dart';
+import '../widgets/animated_favorite_button.dart';
 
 class WatchDetailView extends StatelessWidget {
   // 2. Remove controller from constructor
@@ -35,18 +36,13 @@ class WatchDetailView extends StatelessWidget {
       appBar: AppBar(
         title: Text(watch.name),
         actions: [
-          IconButton(
-            icon: Icon(
-              // 4. Logic is the same, but .watch() makes it rebuild
-              controller.isFavorite(watch.id)
-                  ? Icons.favorite
-                  : Icons.favorite_border,
-              color: controller.isFavorite(watch.id) ? Colors.red : null,
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: AnimatedFavoriteButton(
+              isFavorite: controller.isFavorite(watch.id),
+              onToggle: () => controller.toggleFavorite(watch.id),
+              size: 24,
             ),
-            onPressed: () {
-              // 5. Call controller (no setState or markNeedsBuild needed)
-              controller.toggleFavorite(watch.id);
-            },
           ),
         ],
       ),

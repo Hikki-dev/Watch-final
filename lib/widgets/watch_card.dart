@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/watch.dart';
 import '../controllers/app_controller.dart';
 import 'universal_image.dart';
+import 'animated_favorite_button.dart';
 
 // 1. Changed to a StatelessWidget
 class WatchCard extends StatelessWidget {
@@ -136,20 +137,11 @@ class WatchCard extends StatelessWidget {
                             builder: (context, appController, child) {
                               // 'appController' is the instance from Provider
                               final isFav = appController.isFavorite(watch.id);
-                              return IconButton(
-                                onPressed: () {
-                                  // Call toggleFavorite on the controller
-                                  appController.toggleFavorite(watch.id);
-                                  // No setState() needed!
-                                },
-                                icon: Icon(
-                                  isFav
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isFav ? Colors.red : null,
-                                  size: 18,
-                                ),
-                                padding: EdgeInsets.zero,
+                              return AnimatedFavoriteButton(
+                                isFavorite: isFav,
+                                onToggle: () =>
+                                    appController.toggleFavorite(watch.id),
+                                size: 18,
                               );
                             },
                           ),

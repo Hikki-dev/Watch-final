@@ -205,18 +205,39 @@ class DataService {
             : data;
 
         final List<Watch> watches = productsJson.map((json) {
+          String? imagePath = json['image_url'] ?? json['image'];
+
+          if (imagePath == null || imagePath.isEmpty) {
+            debugPrint(
+              'WARNING: No image found for ${json['name']} (ID: ${json['id']})',
+            );
+          }
+
+          if (imagePath != null && !imagePath.startsWith('http')) {
+            // Ensure no double slash if API returns /images...
+            if (imagePath.startsWith('/')) {
+              imagePath = imagePath.substring(1);
+            }
+            imagePath =
+                "https://laravel-watch-production.up.railway.app/$imagePath";
+          }
+
+          if (json['category_id'] == 3 || json['brand'] == 'Omega') {
+            debugPrint(
+              'DEBUG: Original: ${json['image_url']} -> Final: $imagePath',
+            );
+          }
+
           return Watch.fromJson({
-            'id': json['id']
-                .toString(), // Integers in MySQL, String in Watch ID
+            'id': json['id'].toString(),
             'name': json['name'],
             'brand': json['brand'] ?? 'Generic',
             'price': (json['price'] is num)
                 ? (json['price'] as num).toDouble()
                 : double.tryParse(json['price'].toString()) ?? 0.0,
             'description': json['description'],
-            'category': json['category_id'].toString(), // Mapping ID or name?
-            'imagePath':
-                json['image'], // Ensure this is full URL or handle in UI
+            'category': json['category_id'].toString(),
+            'imagePath': imagePath,
             'stock': json['stock'],
             // 'isFeatured': json['is_featured'] == 1,
           });
@@ -255,7 +276,71 @@ class DataService {
     }
   }
 
-  // Stubs for other methods to prevent compilation errors
+  // --- Favorites Management (API) ---
+
+  Future<Set<String>> fetchFavoritesApi() async {
+    final token = await _getToken();
+    if (token == null) return {};
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/favorites'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Controller returns { ids: [...], products: [...] }
+        if (data['ids'] != null) {
+          return (data['ids'] as List).map((e) => e.toString()).toSet();
+        }
+      }
+    } catch (e) {
+      debugPrint("API Fetch Favorites Error: $e");
+    }
+    return {};
+  }
+
+  Future<void> addFavoriteApi(String watchId) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.post(
+        Uri.parse('$baseUrl/favorites'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'product_id': watchId}),
+      );
+    } catch (e) {
+      debugPrint("API Add Favorite Error: $e");
+    }
+  }
+
+  Future<void> removeFavoriteApi(String watchId) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      await http.delete(
+        Uri.parse('$baseUrl/favorites/$watchId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        },
+      );
+    } catch (e) {
+      debugPrint("API Remove Favorite Error: $e");
+    }
+  }
+
+  // Deprecated Stub - Keeping for compatibility if needed, but unused now
   Future<void> updateFavorites(
     String userId,
     String userName,
