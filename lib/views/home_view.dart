@@ -202,6 +202,18 @@ class BrandGridScreen extends StatelessWidget {
       return availableBrandNames.contains(brand.name.toUpperCase().trim());
     }).toList();
 
+    // Use the brands constant from brand.dart
+    final orientation = MediaQuery.of(context).orientation;
+    final width = MediaQuery.of(context).size.width;
+
+    // Responsive columns
+    int columns = 2; // default
+    if (width > 600) {
+      columns = 4; // tablet
+    } else if (orientation == Orientation.landscape) {
+      columns = 3; // phone landscape
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Watch Brands'), actions: const []),
       body: visibleBrands.isEmpty
