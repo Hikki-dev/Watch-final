@@ -69,12 +69,23 @@ class ProfileView extends StatelessWidget {
     if (!context.mounted) return;
 
     // Call controller (which now handles everything)
-    await controller.pickAndUploadProfileImage(source: source);
+    final String? error = await controller.pickAndUploadProfileImage(
+      source: source,
+    );
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile picture updated successfully')),
-      );
+      if (error == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile picture updated successfully')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error), // Show specific error from backend
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

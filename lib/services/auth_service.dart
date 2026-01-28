@@ -61,7 +61,7 @@ class AuthService {
 
   // --- Firebase Auth Methods ---
 
-  // Sign in (Refactored to throw errors)
+  // Sign in (Refactored to throw errors and sync with backend)
   Future<UserCredential> signInWithEmail({
     required String email,
     required String password,
@@ -70,18 +70,25 @@ class AuthService {
       if (kIsWeb) {
         await _firebaseAuth.setPersistence(Persistence.SESSION);
       }
-      return await _firebaseAuth.signInWithEmailAndPassword(
+
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // --- BACKEND SYNC ---
+      // We must authenticate with the Laravel backend to get a Sanctum token
+      // for subsequent API requests (like profile uploads)
+      await _loginWithEmailBackend(email, password);
+
+      return credential;
     } on FirebaseAuthException catch (e) {
-      // FIX: Rethrow the specific error so the LoginView can catch it
       debugPrint("Sign-in Error: ${e.code}");
       rethrow;
     }
   }
 
-  // Sign up (Refactored to throw errors)
+  // Sign up (Refactored to throw errors and sync with backend)
   Future<UserCredential> signUpWithEmail({
     required String email,
     required String password,
@@ -101,10 +108,98 @@ class AuthService {
         await credential.user!.updateDisplayName(name);
       }
 
+      // --- BACKEND SYNC ---
+      // Register on backend to create User record + get token
+      // We'll use the /register endpoint
+      await _registerWithBackend(name, email, password);
+
       return credential;
     } on FirebaseAuthException catch (e) {
       debugPrint("Sign-up Error: ${e.code}");
       rethrow;
+    }
+  }
+
+  // --- Helper: Backend Email Login ---
+  Future<void> _loginWithEmailBackend(String email, String password) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/login'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({'email': email, 'password': password}),
+      );
+
+      debugPrint(
+        "Backend Login Response: ${response.statusCode} - ${response.body}",
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Correct path: data -> data -> access_token
+        final token = data['data']['access_token'];
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+          debugPrint("Backend Email Login Successful. Token saved.");
+        } else {
+          debugPrint("Backend Login: Token not found in response.");
+        }
+      } else {
+        debugPrint(
+          "Backend Email Login Failed: ${response.statusCode} - ${response.body}",
+        );
+      }
+    } catch (e) {
+      debugPrint("Backend Email Login Error: $e");
+    }
+  }
+
+  // --- Helper: Backend Registration ---
+  Future<void> _registerWithBackend(
+    String name,
+    String email,
+    String password,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/register'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+          'password_confirmation': password, // Usually required
+        }),
+      );
+
+      debugPrint(
+        "Backend Reg Response: ${response.statusCode} - ${response.body}",
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Correct path: data -> data -> access_token
+        final token = data['data']['access_token'];
+        if (token != null) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('auth_token', token);
+          debugPrint("Backend Registration Successful. Token saved.");
+        } else {
+          debugPrint("Backend Reg: Token not found in response.");
+        }
+      } else {
+        debugPrint(
+          "Backend Registration Failed: ${response.statusCode} - ${response.body}",
+        );
+      }
+    } catch (e) {
+      debugPrint("Backend Registration Error: $e");
     }
   }
 

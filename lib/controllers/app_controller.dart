@@ -369,15 +369,17 @@ class AppController extends ChangeNotifier {
 
   // --- DEVICE CAPABILITY METHODS ---
 
-  // MODIFIED: Now accepts specific ImageSource (Camera or Gallery)
-  Future<void> pickAndUploadProfileImage({required ImageSource source}) async {
-    if (currentUser == null) return;
+  // MODIFIED: Return String? error message (null = success)
+  Future<String?> pickAndUploadProfileImage({
+    required ImageSource source,
+  }) async {
+    if (currentUser == null) return "User not logged in";
 
     final imageService = ImageService();
 
     // 1. Pick
     final file = await imageService.pickImage(source: source);
-    if (file == null) return;
+    if (file == null) return null; // Cancelled
 
     // START LOADING
     isUploadingProfileImage = true;
@@ -388,19 +390,28 @@ class AppController extends ChangeNotifier {
 
     try {
       // 2. Process
-      final imageString = await imageService.fileToBase64(file);
+      // New: Upload file directly to API (Multipart)
+      final photoUrl = await _dataService.uploadProfilePhoto(file);
 
-      if (imageString != null) {
-        await _dataService.updateProfileImagePath(
-          userId,
-          currentUser!.name,
-          currentUser!.email,
-          imageString,
-        );
-        debugPrint("API updated with new Base64 Profile Image.");
+      if (photoUrl != null) {
+        // CACHE BUSTING: Append timestamp to force network reload
+        final String bustedUrl =
+            '$photoUrl?v=${DateTime.now().millisecondsSinceEpoch}';
+
+        _dbProfileImagePath = bustedUrl;
+        _updateCurrentUserModel(authService.currentUser);
+        debugPrint("API updated with new Profile Image URL: $bustedUrl");
+        return null; // Success (no error)
       }
+      return "Unknown upload error";
     } catch (e) {
       debugPrint("❌ Profile Image Update Error: $e");
+      // Clean up error message for UI
+      String error = e.toString();
+      if (error.contains("Exception: ")) {
+        error = error.replaceAll("Exception: ", "");
+      }
+      return error;
     } finally {
       // STOP LOADING
       isUploadingProfileImage = false;

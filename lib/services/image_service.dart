@@ -9,8 +9,8 @@ class ImageService {
   /// Returns null if no image was picked or an error occurred.
   Future<XFile?> pickImage({
     required ImageSource source,
-    double maxWidth = 800,
-    int quality = 75,
+    double maxWidth = 600,
+    int quality = 50,
   }) async {
     try {
       final XFile? pickedFile = await _picker.pickImage(

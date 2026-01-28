@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -375,12 +376,68 @@ class DataService {
     }
   }
 
-  Future<void> updateProfileImagePath(
-    String userId,
-    String userName,
-    String userEmail,
-    String? imageUrl,
-  ) async {}
+  Future<String?> uploadProfilePhoto(XFile file) async {
+    final token = await _getToken();
+    if (token == null) {
+      throw Exception(
+        "Authentication Error: Token is null. Try logging out and in.",
+      );
+    }
+
+    try {
+      final uri = Uri.parse('$baseUrl/profile/photo');
+      final request = http.MultipartRequest('POST', uri);
+
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (kIsWeb) {
+        final bytes = await file.readAsBytes();
+        request.files.add(
+          http.MultipartFile.fromBytes('photo', bytes, filename: file.name),
+        );
+      } else {
+        request.files.add(
+          await http.MultipartFile.fromPath('photo', file.path),
+        );
+      }
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      debugPrint("Upload Response: ${response.statusCode} - ${response.body}");
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['photo_url'] != null) {
+          return data['photo_url'];
+        } else {
+          throw Exception(
+            "Server returned success but no photo URL. Response: ${response.body}",
+          );
+        }
+      } else {
+        final body = response.body;
+        // Try to parse error message from JSON
+        try {
+          final json = jsonDecode(body);
+          if (json['message'] != null) {
+            throw Exception(json['message']);
+          }
+          if (json['error'] != null) {
+            throw Exception(json['error']);
+          }
+        } catch (_) {}
+
+        throw Exception("Upload failed (${response.statusCode}): $body");
+      }
+    } catch (e) {
+      debugPrint("API Upload Photo Error: $e");
+      rethrow; // Propagate error to controller
+    }
+  }
 
   // --- Admin API Methods ---
 
