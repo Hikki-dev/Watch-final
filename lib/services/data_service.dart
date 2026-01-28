@@ -218,8 +218,8 @@ class DataService {
             if (imagePath.startsWith('/')) {
               imagePath = imagePath.substring(1);
             }
-            imagePath =
-                "https://laravel-watch-production.up.railway.app/$imagePath";
+            // Use Proxy Route to avoid CORS issues on Web
+            imagePath = "$baseUrl/image-proxy?path=$imagePath";
           }
 
           if (json['category_id'] == 3 || json['brand'] == 'Omega') {
