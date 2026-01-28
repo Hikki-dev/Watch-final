@@ -189,18 +189,41 @@ class BrandGridScreen extends StatelessWidget {
     // We need the controller to check for available products
     final controller = context.watch<AppController>();
 
-    // Dynamic Filtering: Only show brands that have at least one product
-    // Get unique brand names from loaded watches (case-insensitive check)
-    final Set<String> availableBrandNames = controller.allWatches
-        .map((w) => w.brand.toUpperCase().trim())
+    // Dynamic Brand Generation:
+    // 1. Get all unique brand names from the actual database products
+    final Set<String> dbBrandNames = controller.allWatches
+        .map((w) => w.brand.trim())
+        .where((name) => name.isNotEmpty)
         .toSet();
 
-    // Filter the static list to "keep only those which are there in the MySQL Db"
-    // Also allows new brands if we add generic logo support later, but for now filtering is key.
-    final List<Brand> visibleBrands = brands.where((brand) {
-      // Check if this brand name exists in the available watches
-      return availableBrandNames.contains(brand.name.toUpperCase().trim());
-    }).toList();
+    // 2. Build the final display list
+    final List<Brand> visibleBrands = [];
+
+    // Prioritize the Static "Known" Brands (so they have nice logos)
+    // Only include them if they exist in the DB (or if you want to show "Empty" known brands, but user said "sync")
+    // Let's stick to "Only show what's in DB"
+    for (var name in dbBrandNames) {
+      // Check if we have a static definition for this brand (case-insensitive)
+      try {
+        final knownBrand = brands.firstWhere(
+          (b) => b.name.toLowerCase() == name.toLowerCase(),
+        );
+        visibleBrands.add(knownBrand);
+      } catch (e) {
+        // This is a NEW brand added by a seller (e.g. "Breitling")
+        // We don't have a logo asset for it, so we create a dynamic placeholder
+        visibleBrands.add(
+          Brand(
+            id: name.toLowerCase().replaceAll(' ', '_'),
+            name: name,
+            logoPath: '', // Empty path signals "Use Icon"
+          ),
+        );
+      }
+    }
+
+    // Sort alphabetically for meaningful order
+    visibleBrands.sort((a, b) => a.name.compareTo(b.name));
 
     // Use the brands constant from brand.dart
     final orientation = MediaQuery.of(context).orientation;
@@ -247,14 +270,28 @@ class BrandGridScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Hero(
-                              tag: 'brand-${brand.name}',
-                              child: UniversalImage(
+                        tag: 'brand-${brand.name}',
+                        child: brand.logoPath.isEmpty
+                            ? CircleAvatar(
+                                radius: 40,
+                                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
+                                child: Text(
+                                  brand.name[0].toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                              )
+                            : UniversalImage(
                                 imagePath: brand.logoPath,
                                 fit: BoxFit.contain,
                                 errorWidget: const Icon(Icons.watch, size: 60),
                               ),
-                            ),
-                          ),
+                      ),
+                    ),
+                  ),
                         ),
                         const SizedBox(height: 8),
                         Text(
