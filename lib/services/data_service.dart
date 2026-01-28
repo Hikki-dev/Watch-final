@@ -347,6 +347,34 @@ class DataService {
     String userEmail,
     Set<String> favorites,
   ) async {}
+  Future<void> updateProfileApi({
+    required String name,
+    required String email,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final response = await http.put(
+        Uri.parse('$baseUrl/profile'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({'name': name, 'email': email}),
+      );
+
+      if (response.statusCode != 200) {
+        debugPrint("API Update Profile Failed: ${response.body}");
+        throw Exception('Failed to update profile');
+      }
+    } catch (e) {
+      debugPrint("API Update Profile Error: $e");
+      rethrow;
+    }
+  }
+
   Future<void> updateProfileImagePath(
     String userId,
     String userName,

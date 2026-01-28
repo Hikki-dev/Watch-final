@@ -78,6 +78,45 @@ class ProfileView extends StatelessWidget {
     }
   }
 
+  void _showEditNameDialog(
+    BuildContext context,
+    AppController controller,
+    String currentName,
+  ) {
+    final TextEditingController nameController = TextEditingController(
+      text: currentName,
+    );
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Name'),
+          content: TextField(
+            controller: nameController,
+            decoration: const InputDecoration(labelText: 'Full Name'),
+            textCapitalization: TextCapitalization.words,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                final newName = nameController.text.trim();
+                if (newName.isNotEmpty) {
+                  await controller.updateProfile(name: newName);
+                  if (context.mounted) Navigator.pop(context);
+                }
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<AppController>();
@@ -128,9 +167,22 @@ class ProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
-              user.name,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            InkWell(
+              onTap: () => _showEditNameDialog(context, controller, user.name),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    user.name,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.edit, size: 16, color: Colors.grey),
+                ],
+              ),
             ),
             Text(
               user.email,

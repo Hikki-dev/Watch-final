@@ -203,6 +203,23 @@ class AppController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateProfile({required String name}) async {
+    if (currentUser == null) return;
+    try {
+      // Call API
+      await _dataService.updateProfileApi(
+        name: name,
+        email: currentUser!.email, // Keep email same for now
+      );
+
+      // Update local state
+      setUserFullName(name);
+    } catch (e) {
+      debugPrint("Controller Update Profile Error: $e");
+      rethrow;
+    }
+  }
+
   // --- Cart Logic ---
 
   void _updateLocalCartFromDb() {
