@@ -32,6 +32,10 @@ class AuthService {
         body: jsonEncode({'email': email, 'name': name, 'google_id': googleId}),
       );
 
+      debugPrint(
+        "Backend Google Login Response: ${response.statusCode} - ${response.body}",
+      );
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['data']['access_token'];
@@ -39,13 +43,22 @@ class AuthService {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('auth_token', token);
           return token;
+        } else {
+          throw Exception("Google Login: Token not found in response.");
         }
+      } else {
+        // Return server error message
+        final body = response.body;
+        try {
+          final json = jsonDecode(body);
+          if (json['message'] != null) throw Exception(json['message']);
+          if (json['error'] != null) throw Exception(json['error']);
+        } catch (_) {}
+        throw Exception("Backend Google Login Failed: ${response.statusCode}");
       }
-      debugPrint("Backend Login Failed: ${response.body}");
-      return null;
     } catch (e) {
       debugPrint("Backend Connection Error: $e");
-      return null;
+      rethrow;
     }
   }
 
