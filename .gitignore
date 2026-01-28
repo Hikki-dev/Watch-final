@@ -49,3 +49,6 @@ app.*.map.json
 
 
 .vercel
+
+# Nested Backend Repo
+luxwatch-app/
