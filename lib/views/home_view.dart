@@ -180,7 +180,6 @@ class _HomeViewState extends State<HomeView> {
 }
 
 // Brand Grid Screen - FIXED
-// 5. This child widget also no longer takes a controller
 class BrandGridScreen extends StatelessWidget {
   const BrandGridScreen({super.key});
 
@@ -200,8 +199,6 @@ class BrandGridScreen extends StatelessWidget {
     final List<Brand> visibleBrands = [];
 
     // Prioritize the Static "Known" Brands (so they have nice logos)
-    // Only include them if they exist in the DB (or if you want to show "Empty" known brands, but user said "sync")
-    // Let's stick to "Only show what's in DB"
     for (var name in dbBrandNames) {
       // Check if we have a static definition for this brand (case-insensitive)
       try {
@@ -254,8 +251,6 @@ class BrandGridScreen extends StatelessWidget {
                 return Card(
                   child: InkWell(
                     onTap: () {
-                      // 6. Navigate to BrandView. BrandView will get
-                      //    the controller from Provider itself.
                       Navigator.pushNamed(
                         context,
                         '/brand',
@@ -270,28 +265,32 @@ class BrandGridScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Hero(
-                        tag: 'brand-${brand.name}',
-                        child: brand.logoPath.isEmpty
-                            ? CircleAvatar(
-                                radius: 40,
-                                backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-                                child: Text(
-                                  brand.name[0].toUpperCase(),
-                                  style: TextStyle(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                              )
-                            : UniversalImage(
-                                imagePath: brand.logoPath,
-                                fit: BoxFit.contain,
-                                errorWidget: const Icon(Icons.watch, size: 60),
-                              ),
-                      ),
-                    ),
-                  ),
+                              tag: 'brand-${brand.name}',
+                              child: brand.logoPath.isEmpty
+                                  ? CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).primaryColor.withOpacity(0.1),
+                                      child: Text(
+                                        brand.name[0].toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 32,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                    )
+                                  : UniversalImage(
+                                      imagePath: brand.logoPath,
+                                      fit: BoxFit.contain,
+                                      errorWidget: const Icon(
+                                        Icons.watch,
+                                        size: 60,
+                                      ),
+                                    ),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
