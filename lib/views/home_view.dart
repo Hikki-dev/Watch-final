@@ -186,74 +186,80 @@ class BrandGridScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We can still get the controller here if we need it,
-    // but this specific widget only needs the static 'brands' list.
-    // final controller = context.watch<AppController>();
+    // We need the controller to check for available products
+    final controller = context.watch<AppController>();
 
-    // Use the brands constant from brand.dart
-    final orientation = MediaQuery.of(context).orientation;
-    final width = MediaQuery.of(context).size.width;
+    // Dynamic Filtering: Only show brands that have at least one product
+    // Get unique brand names from loaded watches (case-insensitive check)
+    final Set<String> availableBrandNames = controller.allWatches
+        .map((w) => w.brand.toUpperCase().trim())
+        .toSet();
 
-    // Responsive columns
-    int columns = 2; // default
-    if (width > 600) {
-      columns = 4; // tablet
-    } else if (orientation == Orientation.landscape) {
-      columns = 3; // phone landscape
-    }
+    // Filter the static list to "keep only those which are there in the MySQL Db"
+    // Also allows new brands if we add generic logo support later, but for now filtering is key.
+    final List<Brand> visibleBrands = brands.where((brand) {
+      // Check if this brand name exists in the available watches
+      return availableBrandNames.contains(brand.name.toUpperCase().trim());
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Watch Brands'), actions: const []),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(16),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-        ),
-        itemCount: brands.length,
-        itemBuilder: (context, index) {
-          final brand = brands[index];
-          return Card(
-            child: InkWell(
-              onTap: () {
-                // 6. Navigate to BrandView. BrandView will get
-                //    the controller from Provider itself.
-                Navigator.pushNamed(context, '/brand', arguments: brand.name);
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Brand logo image
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Hero(
-                        tag: 'brand-${brand.name}',
-                        child: UniversalImage(
-                          imagePath: brand.logoPath,
-                          fit: BoxFit.contain,
-                          errorWidget: const Icon(Icons.watch, size: 60),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    brand.name,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                ],
+      body: visibleBrands.isEmpty
+          ? const Center(child: Text('No brands available'))
+          : GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
+              itemCount: visibleBrands.length,
+              itemBuilder: (context, index) {
+                final brand = visibleBrands[index];
+                return Card(
+                  child: InkWell(
+                    onTap: () {
+                      // 6. Navigate to BrandView. BrandView will get
+                      //    the controller from Provider itself.
+                      Navigator.pushNamed(
+                        context,
+                        '/brand',
+                        arguments: brand.name,
+                      );
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Brand logo image
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Hero(
+                              tag: 'brand-${brand.name}',
+                              child: UniversalImage(
+                                imagePath: brand.logoPath,
+                                fit: BoxFit.contain,
+                                errorWidget: const Icon(Icons.watch, size: 60),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          brand.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }
