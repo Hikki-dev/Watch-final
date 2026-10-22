@@ -15,6 +15,8 @@
 
 ## 3. Create the `.env` file
 
+Copy `.env.example` to `.env` and fill it in. It lists every key.
+
 `lib/firebase_options.dart` reads its values from `.env`, and `.env` is listed as an asset in `pubspec.yaml`. **The file must exist or the app will not build or start.** It is git-ignored.
 
 | Key | Notes |

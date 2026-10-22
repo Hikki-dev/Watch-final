@@ -1,120 +1,159 @@
 # Watch-final
 
-A luxury **watch store** app built with Flutter. Customers browse by brand, search, save favourites and build a cart. Sellers manage inventory and admins manage products and users. Sign-in uses **Firebase Authentication**, and the catalogue, cart and accounts are served by a **Laravel + MySQL** API.
-
-![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
-![Firebase](https://img.shields.io/badge/Auth-Firebase-FFCA28?logo=firebase&logoColor=black)
-![Backend](https://img.shields.io/badge/Backend-Laravel%20%2B%20MySQL-FF2D20?logo=laravel&logoColor=white)
+[![Checks](https://github.com/Hikki-dev/Watch-final/actions/workflows/checks.yml/badge.svg)](https://github.com/Hikki-dev/Watch-final/actions/workflows/checks.yml)
+![Flutter 3](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)
+![Firebase Auth](https://img.shields.io/badge/Auth-Firebase-FFCA28?logo=firebase&logoColor=black)
+[![Backend](https://img.shields.io/badge/backend-Laravel--Watch-FF2D20?logo=laravel&logoColor=white)](https://github.com/Hikki-dev/Laravel-Watch)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-lightgrey)
 
-## Features
+A luxury watch store for your phone. Browse by brand, search, save favourites and fill a cart. Sellers keep their stock up to date and admins look after products and users. Sign-in is Firebase, and the catalogue, cart and accounts come from the [Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch) API.
 
-**Customers**
-- Register and sign in with email/password or **Google**.
-- Browse the catalogue by **brand**, **search**, and open a detail page.
-- **Favourites** with an animated heart button, and a **cart** with quantities, both stored per account on the backend.
-- Profile with **profile-picture upload** (camera or gallery), current location address and device battery level.
-- **Offline cache**: the last catalogue is stored with Hive and shown immediately while fresh data loads.
-- Light and dark themes (light by default).
+<p align="center"><img src="docs/images/hero.jpg" alt="Four screens of the app: watch brands, a watch page, the shopping cart and the admin dashboard" width="100%"></p>
 
-**Sellers**
-- Seller dashboard with inventory management.
+<p align="center"><sub>Real screens from the running app, talking to the real Laravel-Watch API with its sample data.</sub></p>
 
-**Admins**
-- Admin dashboard to manage **products** and **users**, including changing a user's role.
+## On this page
 
-Roles are `customer` (default), `seller` and `admin`. After sign-in the app opens the matching screen.
+* [What you get](#what-you-get)
+* [How everything fits together](#how-everything-fits-together)
+* [Try it first](#try-it-first): run the app with no Firebase project
+* [Run it with your own Firebase](#run-it-with-your-own-firebase)
+* [A tour of the screens](#a-tour-of-the-screens)
+* [Known issues](#known-issues)
+* [Help and more reading](#help-and-more-reading)
 
-## Architecture in one picture
+## What you get
 
-```
-Flutter app ── Firebase Auth (Email / Google) ──▶ identity
-     │
-     └── HTTPS + Bearer token ──▶ Laravel API (Railway) ──▶ MySQL
-            products, cart, favourites, profile photo, admin users
-     └── Hive ──▶ local catalogue cache
-```
+Three kinds of account use the same app. After sign-in the app opens the right screen for the role.
 
-The backend lives in the companion repository **[Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch)**. After Firebase sign-in the app exchanges the user's details for an API token (`POST /api/auth/google`) and stores it in `shared_preferences`.
-
-## Tech stack
-
-| Area | Packages |
+| | |
 |---|---|
-| State | `provider` (`AppController` is a `ChangeNotifier`) |
-| Identity | `firebase_auth`, `google_sign_in` |
-| Backend API | `http` against the Laravel API |
-| Local storage | `hive`, `hive_flutter`, `shared_preferences` |
-| Images | `cached_network_image`, `image_picker` |
-| Device | `geolocator`, `battery_plus`, `connectivity_plus` |
-| Config | `flutter_dotenv` |
+| **Customers** | A brand grid, a watch list for each brand, search, a detail page, favourites with an animated heart, a cart with quantities, and a profile with a photo, location and battery level |
+| **Sellers** | A dashboard and an inventory list of their own watches |
+| **Admins** | A dashboard with product and user management |
+| **Sign in** | Email and password, or Google, through Firebase Auth |
+| **Quick to open** | The last catalogue is kept on the device (Hive) and shown at once while the new one loads |
+| **Looks** | A soft light theme by default, with a dark theme and a system option on the profile page |
+| **Runs on** | Android, iOS and the web. The web build is in `build/web` |
 
-## Quick start
+## How everything fits together
+
+The app does not have a database of its own. Firebase says who you are, and the Laravel API holds everything else.
+
+<p align="center"><a href="docs/images/how-it-fits.svg"><img src="docs/images/how-it-fits.svg" alt="Diagram: the Flutter app signs in with Firebase, talks to the Laravel-Watch API with a token, keeps a local cache with Hive, and reads the camera, location and battery of the phone" width="100%"></a></p>
+
+Signing in takes a few steps, and they decide which screen you see:
+
+<p align="center"><a href="docs/images/sign-in-flow.svg"><img src="docs/images/sign-in-flow.svg" alt="Diagram: sign in with Firebase, swap it for an API token, save the token, send it with every call, read the role, open the matching screen" width="100%"></a></p>
+
+The long version is in [How it works](docs/How%20it%20works.md).
+
+## Try it first
+
+You can run the whole app **without a Firebase project**. A second entry point, `lib/main_demo.dart`, signs in to a local Laravel-Watch with one of its sample accounts, so every screen runs against real data.
+
+You need the [Flutter SDK](https://docs.flutter.dev/get-started/install), and [Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch) running on your computer (its README takes five minutes).
 
 ```bash
 git clone https://github.com/Hikki-dev/Watch-final.git
 cd Watch-final
-flutter pub get
+cp .env.example .env
 ```
 
-Create a `.env` file in the repo root (it is a declared asset, so the build fails without it) with your Firebase values and API URL, then run. See **[docs/SETUP.md](docs/SETUP.md)** for the exact keys.
+Open `.env` and change the `API_BASE_URL` line, so the app talks to your local backend. The Firebase lines can stay empty for the demo.
+
+```env
+API_BASE_URL=http://127.0.0.1:8000/api
+```
+
+Then start it, choosing which account to be:
 
 ```bash
-flutter run             # device or emulator
+flutter pub get
+flutter run -d chrome -t lib/main_demo.dart --dart-define=DEMO_ROLE=customer
+# or DEMO_ROLE=seller, or DEMO_ROLE=admin
+```
+
+On the web build you can also change the account in the address, for example `?role=admin`. More in [Demo mode](docs/Demo%20mode.md).
+
+## Run it with your own Firebase
+
+The real app needs a Firebase project with **Email/Password** and **Google** sign-in switched on, a `.env` with your keys, and a running Laravel-Watch API. The steps, with the table of every key, are in **[the setup guide](docs/SETUP.md)**.
+
+```bash
+flutter pub get
+flutter run             # phone or emulator
 flutter run -d chrome   # web
 ```
 
-## Project structure
+## A tour of the screens
 
-```
-lib/
-├── main.dart                    # Env, Firebase and Hive init, routes, theme
-├── firebase_options.dart        # Reads Firebase values from .env
-├── controllers/
-│   └── app_controller.dart      # Auth state, catalogue, cart, favourites, profile
-├── models/                      # Watch, Brand, Cart, CartItem, User, MysqlProduct, MysqlUser
-├── services/
-│   ├── auth_service.dart        # Firebase Auth + backend token exchange
-│   ├── data_service.dart        # Catalogue, cart, favourites, profile, admin calls + Hive cache
-│   ├── api_service.dart         # Generic REST client for admin/seller screens
-│   └── image_service.dart
-├── views/                       # splash, login, register, home, brand, search, detail,
-│   ├── admin/                   # cart, favourites, profile
-│   └── seller/                  # dashboards, product and user management, inventory
-└── widgets/                     # watch_card, universal_image, animated_favorite_button
-assets/images/                   # brand logos and watch photos
-test/                            # widget, API-connection and role integration tests
-vercel.json                      # SPA rewrite for the Flutter web build
-```
+The pictures are taken from the demo mode above with the customer, seller and admin accounts.
 
-## Routes
+### Customers
 
-`/splash`, `/login`, `/register`, `/home`, `/admin`, `/seller`.
+<p align="center">
+<img src="docs/images/brands.jpg" alt="Watch brands grid with logos" width="30%">
+<img src="docs/images/brand.jpg" alt="Rolex watches with price, an Add button and a heart" width="30%">
+<img src="docs/images/detail.jpg" alt="A watch page with a large picture, price, stock and an Add to Cart button" width="30%">
+</p>
 
-## Tests
+The home screen is a grid of brands. A brand shows its watches, each with a price, an **Add** button and a heart for favourites. The detail page has a big picture, the stock left and the description.
 
-```bash
-flutter test
-```
+<p align="center">
+<img src="docs/images/search.jpg" alt="Search results for the word omega" width="30%">
+<img src="docs/images/cart.jpg" alt="Shopping cart with quantities and a total" width="30%">
+<img src="docs/images/profile.jpg" alt="Profile with name, cart and favourites counts, location, theme choice and battery level" width="30%">
+</p>
 
-`test/` has a widget test, an API connection test and role-based integration tests. The API tests call the live backend, so they need network access.
+Search narrows the list as you type. The cart is stored on the server, so it follows you to another phone. The profile page shows your name and photo, your counts, where you are, the theme choice and the battery level of the device.
 
-## Web deployment
+### Sellers and admins
 
-`vercel.json` rewrites every path to `index.html` so deep links work:
+<p align="center">
+<img src="docs/images/seller-dashboard.jpg" alt="Seller dashboard with a Manage Inventory button" width="30%">
+<img src="docs/images/seller-inventory.jpg" alt="Inventory list with picture, category and stock for each watch" width="30%">
+<img src="docs/images/admin-dashboard.jpg" alt="Admin dashboard with Products and Users tiles" width="30%">
+</p>
 
-```bash
-flutter build web --release
-```
+A seller opens their inventory and edits a watch. An admin has product and user management tiles. See the [known issues](#known-issues) for the state of these two tiles.
 
-Deploy `build/web` to Vercel or any static host.
+## Known issues
 
-## Notes
+This is a coursework project that grew, and some parts are unfinished. Here is what is true today.
 
-- The default API base URL (`https://laravel-watch-production.up.railway.app`) is hard-coded as a fallback in `lib/services/`. Override it with `API_BASE_URL` in `.env`.
-- Catalogue refresh polls the API every 30 seconds rather than streaming.
-- `build/web` is committed. It can be dropped and rebuilt in CI.
+1. **Checkout is a placeholder.** The **Checkout** button on the cart shows an "Order Placed" message and clears the cart. No order is created and nothing is paid. Real checkout with Stripe exists on the Laravel-Watch website, not in the app.
+2. **Order history and Settings** on the profile page show a "coming soon" message.
+3. **The admin "Products" and "Users" tiles only work against the hosted backend, and "Users" does not work at all.** They use `ApiService`, which has the hosted address hard-coded (`https://laravel-watch-production.up.railway.app`), ignores `API_BASE_URL`, and sends no token. The products list is public, so it loads from the hosted API. The users route needs an admin token, so it answers with an error everywhere.
+4. **No iOS location text yet.** `ios/Runner/Info.plist` needs `NSLocationWhenInUseUsageDescription` before the "current location" feature works on an iPhone.
+5. **The catalogue is polled every 30 seconds**, not streamed.
+6. **`build/web` is committed.** It can be deleted and rebuilt.
+7. The tests under `test/` call the live backend, so they need a network and the hosted API to be up.
 
-## Author
+## Help and more reading
+
+| If you want to | Read |
+|---|---|
+| Run it with no Firebase project | [Demo mode](docs/Demo%20mode.md) |
+| Set up Firebase, the keys and a backend | [Setup guide](docs/SETUP.md) |
+| Understand how it is built | [How it works](docs/How%20it%20works.md) |
+| Fix a problem | [Fixing problems](docs/Fixing%20problems.md) |
+| Find a quick answer | [Questions and answers](docs/FAQ.md) |
+| Run or change the backend | [Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch) |
+| Change the code | [Contributing](CONTRIBUTING.md) |
+| Report a security problem | [SECURITY.md](SECURITY.md) |
+| See what changed | [Changes](CHANGELOG.md) |
+
+## Contributing
+
+Fixes and ideas are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+
+## Credits
+
+Built with [Flutter](https://flutter.dev), [Firebase](https://firebase.google.com) and [Hive](https://pub.dev/packages/hive). The watch photographs and brand logos belong to their owners and are used here as sample content only.
+
+## Licence
+
+No licence file yet, so for now all rights are reserved by the author.
 
 Built by [Yusuf (Hikki-dev)](https://github.com/Hikki-dev).

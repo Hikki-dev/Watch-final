@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="680" viewBox="0 0 1700 680" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">How the app fits together</title><desc id="d">The Flutter app signs you in with Firebase, swaps that for a token from the Laravel-Watch API, and then asks the API for products, carts and profiles. A small local cache keeps the last catalogue for when the network is slow. The app also reads the camera, location and battery of the phone.</desc><defs>
+<marker id="a02569b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#02569b"/></marker>
+<marker id="a0f766e" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#0f766e"/></marker>
+<marker id="a4479a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#4479a1"/></marker>
+<marker id="a64748b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+<marker id="a7c5cc4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7c5cc4"/></marker>
+<marker id="affa000" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffa000"/></marker>
+<style>.t{font-size:22px;font-weight:700;fill:#0f172a;text-anchor:middle}.s{font-size:16px;fill:#475569;text-anchor:middle}.l{font-size:15px;font-weight:700;fill:#334155;text-anchor:middle}.h{font-size:32px;font-weight:700;fill:#0f172a;text-anchor:middle}.g{font-size:15px;font-weight:700;fill:#94a3b8;letter-spacing:.08em}</style></defs>
+<rect width="1700" height="680" fill="#f8fafc"/>
+<text x="850.0" y="46" class="h">How the app fits together</text>
+<line x1="261" y1="330" x2="422" y2="330" stroke="#64748b" stroke-width="2.4" marker-end="url(#a64748b)"/>
+<rect x="316" y="317" width="50" height="26" rx="13" fill="#f8fafc" stroke="#64748b" stroke-width="1.4"/>
+<text x="342" y="335" class="l">taps</text>
+<line x1="560" y1="269" x2="560" y2="164" stroke="#ffa000" stroke-width="2.4" marker-end="url(#affa000)"/>
+<rect x="522" y="204" width="77" height="26" rx="13" fill="#f8fafc" stroke="#ffa000" stroke-width="1.4"/>
+<text x="560" y="222" class="l">sign in</text>
+<line x1="696" y1="330" x2="877" y2="330" stroke="#02569b" stroke-width="2.4" marker-end="url(#a02569b)"/>
+<rect x="726" y="317" width="122" height="26" rx="13" fill="#f8fafc" stroke="#02569b" stroke-width="1.4"/>
+<text x="786" y="335" class="l">JSON + token</text>
+<line x1="1181" y1="330" x2="1327" y2="330" stroke="#4479a1" stroke-width="2.4" marker-end="url(#a4479a1)"/>
+<rect x="1216" y="317" width="77" height="26" rx="13" fill="#f8fafc" stroke="#4479a1" stroke-width="1.4"/>
+<text x="1254" y="335" class="l">queries</text>
+<line x1="560" y1="391" x2="560" y2="506" stroke="#0f766e" stroke-width="2.4" marker-end="url(#a0f766e)"/>
+<rect x="530" y="436" width="59" height="26" rx="13" fill="#f8fafc" stroke="#0f766e" stroke-width="1.4"/>
+<text x="560" y="454" class="l">saves</text>
+<line x1="675" y1="391" x2="928" y2="526" stroke="#7c5cc4" stroke-width="2.4" marker-end="url(#a7c5cc4)"/>
+<rect x="772" y="446" width="59" height="26" rx="13" fill="#f8fafc" stroke="#7c5cc4" stroke-width="1.4"/>
+<text x="802" y="464" class="l">reads</text>
+<rect x="45" y="284" width="210" height="92" rx="16" fill="#ffffff" stroke="#64748b" stroke-width="2.4"/>
+<rect x="45" y="284" width="9" height="92" rx="4" fill="#64748b"/>
+<text x="154" y="326" class="t">You</text>
+<text x="154" y="352" class="s">customer, seller or admin</text>
+<rect x="430" y="275" width="260" height="110" rx="16" fill="#ffffff" stroke="#02569b" stroke-width="2.4"/>
+<rect x="430" y="275" width="9" height="110" rx="4" fill="#02569b"/>
+<text x="564" y="326" class="t">Watch-final</text>
+<text x="564" y="352" class="s">the Flutter app</text>
+<rect x="425" y="64" width="270" height="92" rx="16" fill="#ffffff" stroke="#ffa000" stroke-width="2.4"/>
+<rect x="425" y="64" width="9" height="92" rx="4" fill="#ffa000"/>
+<text x="564" y="106" class="t">Firebase Auth</text>
+<text x="564" y="132" class="s">email and Google sign-in</text>
+<rect x="425" y="514" width="270" height="92" rx="16" fill="#ffffff" stroke="#0f766e" stroke-width="2.4"/>
+<rect x="425" y="514" width="9" height="92" rx="4" fill="#0f766e"/>
+<text x="564" y="556" class="t">Hive + prefs</text>
+<text x="564" y="582" class="s">catalogue cache, API token</text>
+<rect x="885" y="275" width="290" height="110" rx="16" fill="#ffffff" stroke="#ff2d20" stroke-width="2.4"/>
+<rect x="885" y="275" width="9" height="110" rx="4" fill="#ff2d20"/>
+<text x="1034" y="326" class="t">Laravel-Watch API</text>
+<text x="1034" y="352" class="s">Sanctum token, one per sign-in</text>
+<rect x="1335" y="284" width="230" height="92" rx="16" fill="#ffffff" stroke="#4479a1" stroke-width="2.4"/>
+<rect x="1335" y="284" width="9" height="92" rx="4" fill="#4479a1"/>
+<text x="1454" y="326" class="t">MySQL</text>
+<text x="1454" y="352" class="s">products, carts, users</text>
+<rect x="915" y="534" width="230" height="92" rx="16" fill="#ffffff" stroke="#7c5cc4" stroke-width="2.4"/>
+<rect x="915" y="534" width="9" height="92" rx="4" fill="#7c5cc4"/>
+<text x="1034" y="576" class="t">This phone</text>
+<text x="1034" y="602" class="s">camera, location, battery</text>
+<text x="850.0" y="658" class="s">The backend is the Laravel-Watch repository. Firebase is used for sign-in only</text>
+</svg>

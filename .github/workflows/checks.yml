@@ -1,0 +1,25 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Make the settings file
+        run: cp .env.example .env
+      - run: flutter pub get
+      - name: Analyze (errors only, there are known lint warnings)
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build the web app
+        run: flutter build web --release --no-web-resources-cdn
+      - name: Build the demo entry point
+        run: flutter build web -t lib/main_demo.dart --release --no-web-resources-cdn
