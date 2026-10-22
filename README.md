@@ -101,19 +101,19 @@ flutter test
 
 ## Web deployment
 
-`vercel.json` rewrites every path to `index.html` so deep links work:
+The web build deploys to **GitHub Pages** for free through `.github/workflows/deploy-web.yml`. Setup steps are in **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**. To build locally:
 
 ```bash
 flutter build web --release
 ```
 
-Deploy `build/web` to Vercel or any static host.
+`vercel.json` rewrites every path to `index.html` if you prefer to deploy `build/web` to Vercel or another static host.
 
 ## Notes
 
 - The default API base URL (`https://laravel-watch-production.up.railway.app`) is hard-coded as a fallback in `lib/services/`. Override it with `API_BASE_URL` in `.env`.
 - Catalogue refresh polls the API every 30 seconds rather than streaming.
-- `build/web` is committed. It can be dropped and rebuilt in CI.
+- `build/` is no longer committed. CI builds it.
 
 ## Author
 

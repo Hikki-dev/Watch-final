@@ -64,7 +64,6 @@ Responses may be a bare list or wrapped in `{ "data": [...] }`. A product looks 
   "price": "14500.00", "stock_quantity": 5, "description": "..." }
 ```
 
-`temp_products.json` in the repo root is a sample of the API's product payload.
 
 ## 5. Roles
 
