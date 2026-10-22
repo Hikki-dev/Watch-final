@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -178,15 +179,33 @@ class DataService {
 
   // --- Product Data (API) ---
 
-  // Stream watches replaced by Fetch
-  // We can keep the stream signature but just emit once for compatibility or refactor Controller.
-  Stream<List<Watch>> streamWatches() async* {
-    while (true) {
-      yield await fetchWatchesFromApi();
-      await Future.delayed(const Duration(seconds: 30)); // Poll every 30s
+  /// Emits the catalogue immediately, then every 30 seconds while listened to.
+  /// The poll timer is cancelled with the subscription, so nothing keeps running
+  /// after the listener (e.g. the AppController) is disposed.
+  Stream<List<Watch>> streamWatches() {
+    late final StreamController<List<Watch>> controller;
+    Timer? timer;
+
+    Future<void> poll() async {
+      try {
+        final watches = await fetchWatchesFromApi();
+        if (!controller.isClosed) controller.add(watches);
+      } catch (e, stack) {
+        if (!controller.isClosed) controller.addError(e, stack);
+      }
     }
-    // Alternatively just yield once:
-    // yield await fetchWatchesFromApi();
+
+    controller = StreamController<List<Watch>>(
+      onListen: () {
+        poll();
+        timer = Timer.periodic(const Duration(seconds: 30), (_) => poll());
+      },
+      onCancel: () {
+        timer?.cancel();
+        timer = null;
+      },
+    );
+    return controller.stream;
   }
 
   Future<List<Watch>> fetchWatchesFromApi() async {
@@ -240,6 +259,7 @@ class DataService {
             'category': json['category_id'].toString(),
             'imagePath': imagePath,
             'stock': json['stock'],
+            'spinFrames': _absoluteFrames(json['spin_frames']),
             // 'isFeatured': json['is_featured'] == 1,
           });
         }).toList();
@@ -251,6 +271,15 @@ class DataService {
       debugPrint("API Fetch Watches Error: $e");
     }
     return [];
+  }
+
+  /// 360 frame URLs from the API; relative paths are resolved against the API host.
+  List<String> _absoluteFrames(dynamic raw) {
+    if (raw is! List) return const [];
+    return raw.whereType<String>().where((f) => f.isNotEmpty).map((f) {
+      if (f.startsWith('http')) return f;
+      return '$baseUrl/${f.startsWith('/') ? f.substring(1) : f}';
+    }).toList();
   }
 
   // --- Local DB (Hive) - Keep for caching ---

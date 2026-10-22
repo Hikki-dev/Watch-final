@@ -15,12 +15,14 @@ class SearchView extends StatefulWidget {
 class _SearchViewState extends State<SearchView> {
   final _searchController = TextEditingController();
   List _results = []; // This is local state, so it's fine
+  String _query = '';
 
   void _search(String query) {
     // 3. Get controller from Provider using .read()
     // We use .read() here because it's in a callback
     final controller = context.read<AppController>();
     setState(() {
+      _query = query.trim();
       _results = controller.searchWatches(query);
     });
   }
@@ -44,7 +46,11 @@ class _SearchViewState extends State<SearchView> {
         ),
       ),
       body: _results.isEmpty
-          ? const Center(child: Text('Search for watches'))
+          ? Center(
+              child: Text(
+                _query.isEmpty ? 'Search for watches' : 'No products found',
+              ),
+            )
           : GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

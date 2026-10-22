@@ -59,3 +59,27 @@ flutter:
 
     # Watch images
     - assets/images/watches/
+
+  fonts:
+    - family: Cormorant Garamond
+      fonts:
+        - asset: assets/fonts/CormorantGaramond_300Light.ttf
+          weight: 300
+        - asset: assets/fonts/CormorantGaramond_400Regular.ttf
+          weight: 400
+        - asset: assets/fonts/CormorantGaramond_500Medium.ttf
+          weight: 500
+        - asset: assets/fonts/CormorantGaramond_600SemiBold.ttf
+          weight: 600
+    - family: Hanken Grotesk
+      fonts:
+        - asset: assets/fonts/HankenGrotesk_400Regular.ttf
+          weight: 400
+        - asset: assets/fonts/HankenGrotesk_500Medium.ttf
+          weight: 500
+        - asset: assets/fonts/HankenGrotesk_600SemiBold.ttf
+          weight: 600
+    - family: DM Mono
+      fonts:
+        - asset: assets/fonts/DMMono_400Regular.ttf
+          weight: 400

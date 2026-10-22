@@ -25,6 +25,10 @@ A luxury **watch store** app built with Flutter. Customers browse by brand, sear
 
 Roles are `customer` (default), `seller` and `admin`. After sign-in the app opens the matching screen.
 
+## Design
+
+Light by default with a dark toggle, bundled fonts, a drag-to-rotate 360 viewer and a shared photo and logo treatment. See **[docs/DESIGN.md](docs/DESIGN.md)**.
+
 ## Architecture in one picture
 
 ```

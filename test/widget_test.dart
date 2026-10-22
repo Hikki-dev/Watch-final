@@ -60,7 +60,7 @@ void main() {
     );
 
     // 4. Verify Splash
-    expect(find.text('Watch Store'), findsOneWidget);
+    expect(find.text('LUXWATCH'), findsOneWidget);
 
     // 5. Advance
     await tester.pump(const Duration(seconds: 2));

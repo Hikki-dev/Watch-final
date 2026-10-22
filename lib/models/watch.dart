@@ -11,6 +11,9 @@ class Watch {
   final String imagePath; // Made required (not nullable)
   final int stock; // New field for inventory management
 
+  /// Ordered frame URLs/assets for the 360 viewer. Empty means photo only.
+  final List<String> spinFrames;
+
   Watch({
     required this.id,
     required this.name,
@@ -20,6 +23,7 @@ class Watch {
     required this.description,
     required this.imagePath,
     required this.stock,
+    this.spinFrames = const [],
   });
 
   String get displayPrice => '\$${price.toStringAsFixed(2)}';
@@ -55,6 +59,7 @@ class Watch {
           'assets/images/watches/ap-royal-oak-1.jpg', // A fallback
       stock:
           (json['stock'] as num?)?.toInt() ?? 10, // Default to 10 for migration
+      spinFrames: _parseFrames(json['spinFrames'] ?? json['spin_frames']),
     );
   }
 
@@ -70,6 +75,14 @@ class Watch {
       'description': description,
       'imagePath': imagePath,
       'stock': stock,
+      'spinFrames': spinFrames,
     };
+  }
+
+  static List<String> _parseFrames(dynamic raw) {
+    if (raw is List) {
+      return raw.whereType<String>().where((f) => f.isNotEmpty).toList();
+    }
+    return const [];
   }
 }

@@ -10,6 +10,9 @@ class UniversalImage extends StatelessWidget {
   final Widget? placeholder;
   final Widget? errorWidget;
 
+  /// Keep the previous frame on screen while a new one resolves (used by the 360 viewer).
+  final bool gapless;
+
   const UniversalImage({
     super.key,
     required this.imagePath,
@@ -18,7 +21,12 @@ class UniversalImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.placeholder,
     this.errorWidget,
+    this.gapless = false,
   });
+
+  /// Image provider for a path, so callers can precache frames.
+  static ImageProvider providerFor(String path) =>
+      path.startsWith('http') ? CachedNetworkImageProvider(path) : AssetImage(path);
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +73,12 @@ class UniversalImage extends StatelessWidget {
         width: width,
         height: height,
         fit: fit,
+        fadeInDuration: gapless ? Duration.zero : const Duration(milliseconds: 500),
+        fadeOutDuration: gapless ? Duration.zero : const Duration(milliseconds: 1000),
         placeholder: (context, url) =>
-            placeholder ?? const Center(child: CircularProgressIndicator()),
+            // Photographs sit on a studio backdrop that shows while they fade in,
+            // so there is no spinner by default.
+            placeholder ?? const SizedBox.shrink(),
         errorWidget: (context, url, error) =>
             errorWidget ?? const Icon(Icons.broken_image),
       );
@@ -79,6 +91,7 @@ class UniversalImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      gaplessPlayback: gapless,
       errorBuilder: (context, error, stackTrace) {
         return SizedBox(
           width: width,

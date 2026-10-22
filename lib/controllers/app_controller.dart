@@ -34,6 +34,8 @@ class AppController extends ChangeNotifier {
 
   // --- API Data Subscription Fields ---
   StreamSubscription<Map<String, dynamic>>? _userDataSubscription;
+  StreamSubscription<List<Watch>>? _watchesSubscription;
+  StreamSubscription<fb.User?>? _authSubscription;
 
   // Private fields to hold streamed data from Firestore
   Set<String> _dbFavorites = {};
@@ -45,7 +47,9 @@ class AppController extends ChangeNotifier {
   AppController({required this.authService, DataService? dataService})
     : _dataService = dataService ?? DataService() {
     // Listen to auth changes
-    authService.authStateChanges.listen(_onAuthStateChanged);
+    _authSubscription = authService.authStateChanges.listen(
+      _onAuthStateChanged,
+    );
     _onAuthStateChanged(authService.currentUser);
   }
 
@@ -71,9 +75,9 @@ class AppController extends ChangeNotifier {
       // Cancel existing subscription if any to avoid duplicates
       _userDataSubscription?.cancel();
 
-      // Note: We're using a separate subscription for global watches, ideally should be a field
-      // But for now we'll just listen. In a production app, we'd store this subscription.
-      _dataService.streamWatches().listen(
+      // Keep the catalogue subscription so it (and its poll timer) can be cancelled.
+      _watchesSubscription?.cancel();
+      _watchesSubscription = _dataService.streamWatches().listen(
         (watches) async {
           if (watches.isNotEmpty) {
             // Only update if data is actually different to avoid rebuilds
@@ -120,6 +124,14 @@ class AppController extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _watchesSubscription?.cancel();
+    _userDataSubscription?.cancel();
+    _authSubscription?.cancel();
+    super.dispose();
   }
 
   // Public method to force refresh user data (called after backend login)

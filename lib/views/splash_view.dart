@@ -2,44 +2,50 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/app_controller.dart';
-import '../services/auth_service.dart';
+import '../theme/lux_theme.dart';
+import '../widgets/lux_widgets.dart';
 
 class SplashView extends StatefulWidget {
-  // 2. REMOVE controller from constructor
   const SplashView({super.key});
 
   @override
   State<SplashView> createState() => _SplashViewState();
 }
 
-class _SplashViewState extends State<SplashView> {
+class _SplashViewState extends State<SplashView>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _intro = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..forward();
+
   @override
   void initState() {
     super.initState();
     _checkAuthAndNavigate();
   }
 
+  @override
+  void dispose() {
+    _intro.dispose();
+    super.dispose();
+  }
+
   Future<void> _checkAuthAndNavigate() async {
-    // 1. Wait for min splash duration (UI experience)
+    // Minimum splash duration so the intro can play.
     await Future.delayed(const Duration(seconds: 2));
     if (!mounted) return;
 
-    // 2. Get Access to Providers
-    final authService = context.read<AuthService>();
     final controller = context.read<AppController>();
-
-    // 3. Check if user is logged in
     final user = controller.currentUser;
 
     if (user != null) {
-      // 4. Wait for Controller to fully load user data (Strict Sync)
-      // We loop until isUserDataLoaded is true or timeout
+      // Wait for the controller to finish loading user data (bounded).
       int attempts = 0;
       while (!controller.isUserDataLoaded && attempts < 20) {
         await Future.delayed(const Duration(milliseconds: 200));
         attempts++;
       }
-
       if (mounted) {
         Navigator.pushReplacementNamed(context, controller.homeRoute);
       }
@@ -50,27 +56,37 @@ class _SplashViewState extends State<SplashView> {
 
   @override
   Widget build(BuildContext context) {
+    final c = context.lux;
+    final fade = CurvedAnimation(parent: _intro, curve: Curves.easeOutCubic);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: c.bg,
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.watch, size: 100, color: Colors.white),
-            SizedBox(height: 20),
-            Text(
-              'Watch Store',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+        child: FadeTransition(
+          opacity: fade,
+          child: AnimatedBuilder(
+            animation: fade,
+            builder: (context, child) => Transform.translate(
+              offset: Offset(0, (1 - fade.value) * 14),
+              child: child,
             ),
-            Text(
-              'Premium Timepieces',
-              style: TextStyle(fontSize: 16, color: Colors.white70),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'LUXWATCH',
+                  style: TextStyle(
+                    fontFamily: LuxFonts.display,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 10,
+                    color: c.text,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                const Eyebrow('Fine watches, reviewed'),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

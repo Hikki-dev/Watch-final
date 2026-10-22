@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -21,6 +22,7 @@ import 'views/admin/admin_dashboard_view.dart';
 import 'views/seller/seller_dashboard_view.dart';
 
 import 'firebase_options.dart';
+import 'theme/lux_theme.dart';
 
 Future<void> main() async {
   runZonedGuarded(
@@ -75,33 +77,43 @@ class WatchApp extends StatefulWidget {
 }
 
 class _WatchAppState extends State<WatchApp> {
+  static const _themeKey = 'lux-theme';
+
+  // Light is the default; the choice is remembered between launches.
   ThemeMode _themeMode = ThemeMode.light;
 
-  void _setThemeMode(ThemeMode mode) {
+  @override
+  void initState() {
+    super.initState();
+    _restoreThemeMode();
+  }
+
+  Future<void> _restoreThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    if (prefs.getString(_themeKey) == 'dark') {
+      setState(() => _themeMode = ThemeMode.dark);
+    }
+  }
+
+  Future<void> _setThemeMode(ThemeMode mode) async {
     setState(() {
       _themeMode = mode;
     });
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      _themeKey,
+      mode == ThemeMode.dark ? 'dark' : 'light',
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Watch Store',
+      title: 'LUXWATCH',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1B5E20),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4CAF50),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: LuxTheme.light(),
+      darkTheme: LuxTheme.dark(),
       themeMode: _themeMode,
 
       initialRoute: '/splash',

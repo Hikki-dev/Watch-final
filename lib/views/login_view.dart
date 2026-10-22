@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/app_controller.dart';
 import '../services/auth_service.dart';
+import '../theme/lux_theme.dart';
+import '../widgets/lux_widgets.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -149,77 +151,105 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    // ... (Keep your existing UI code exactly as it is) ...
-    // Just copy the `build` method from your previous file here.
+    final c = context.lux;
+    final text = Theme.of(context).textTheme;
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.watch,
-                size: 80,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                'Welcome Back',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 40),
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _passwordController,
-                obscureText: _hidePassword,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _hidePassword ? Icons.visibility : Icons.visibility_off,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(28),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Reveal(
+                    child: Column(
+                      children: [
+                        Text(
+                          'LUXWATCH',
+                          style: TextStyle(
+                            fontFamily: LuxFonts.display,
+                            fontSize: 26,
+                            letterSpacing: 8,
+                            color: c.text,
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                        Text(
+                          'Welcome Back',
+                          style: text.displaySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Sign in to continue.',
+                          style: text.bodyMedium?.copyWith(color: c.mute),
+                        ),
+                      ],
                     ),
-                    onPressed: () =>
-                        setState(() => _hidePassword = !_hidePassword),
                   ),
-                  border: const OutlineInputBorder(),
-                ),
+                  const SizedBox(height: 36),
+                  Reveal(
+                    index: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        TextField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            prefixIcon: Icon(Icons.mail_outline),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: _hidePassword,
+                          autofillHints: const [AutofillHints.password],
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              tooltip: _hidePassword
+                                  ? 'Show password'
+                                  : 'Hide password',
+                              icon: Icon(
+                                _hidePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: () => setState(
+                                () => _hidePassword = !_hidePassword,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        FilledButton(
+                          onPressed: _login,
+                          child: const Text('Login'),
+                        ),
+                        const SizedBox(height: 12),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.g_mobiledata, size: 28),
+                          label: const Text('Sign in with Google'),
+                          onPressed: _loginWithGoogle,
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/register'),
+                          child: const Text('Create Account'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: _login,
-                  child: const Text('Login'),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  icon: const Icon(
-                    Icons.g_mobiledata,
-                    size: 28,
-                  ), // Use a built-in icon or custom asset
-                  label: const Text('Sign in with Google'),
-                  onPressed: _loginWithGoogle,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                onPressed: () => Navigator.pushNamed(context, '/register'),
-                child: const Text('Create Account'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

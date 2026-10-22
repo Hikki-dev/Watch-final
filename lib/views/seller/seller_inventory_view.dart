@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/data_service.dart';
 import '../../models/watch.dart';
+import '../../theme/lux_theme.dart';
+import '../../widgets/lux_widgets.dart';
 import '../../widgets/universal_image.dart';
 
 class SellerInventoryView extends StatelessWidget {
@@ -11,7 +13,7 @@ class SellerInventoryView extends StatelessWidget {
     final dataService = DataService();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Inventory Management')),
+      appBar: AppBar(title: const Text('Inventory')),
       body: StreamBuilder<List<Watch>>(
         stream: dataService.streamWatches(),
         builder: (context, snapshot) {
@@ -27,38 +29,65 @@ class SellerInventoryView extends StatelessWidget {
             return const Center(child: Text('No products found.'));
           }
 
-          return ListView.builder(
+          return ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             itemCount: watches.length,
+            separatorBuilder: (_, _) => const SizedBox(height: 10),
             itemBuilder: (context, index) {
               final watch = watches[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                // Highlight out-of-stock items
-                color: watch.stock == 0 ? Colors.red[50] : null,
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: UniversalImage(
-                      imagePath: watch.imagePath,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
+              final c = context.lux;
+              final soldOut = watch.stock == 0;
+              return Reveal(
+                index: index % 6,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Row(
+                      children: [
+                        LuxStage(
+                          height: 64,
+                          child: SizedBox(
+                            width: 64,
+                            child: UniversalImage(
+                              imagePath: watch.imagePath,
+                              fit: BoxFit.cover,
+                              errorWidget: Icon(Icons.watch, color: c.mute),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Eyebrow(watch.brand),
+                              const SizedBox(height: 3),
+                              Text(
+                                watch.name,
+                                style: Theme.of(context).textTheme.titleLarge,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                'Category: ${watch.category}  ·  Stock: ${watch.stock}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        StatusPill(
+                          soldOut ? 'Sold out' : 'Live',
+                          kind: soldOut ? PillKind.rejected : PillKind.live,
+                        ),
+                        IconButton(
+                          tooltip: 'Edit stock',
+                          icon: Icon(Icons.edit_note, size: 28, color: c.accent),
+                          onPressed: () => _showEditStockDialog(context, watch),
+                        ),
+                      ],
                     ),
-                  ),
-                  title: Text(
-                    watch.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    'Category: ${watch.category}\nStock: ${watch.stock}',
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(
-                      Icons.edit_note,
-                      size: 30,
-                      color: Colors.blue,
-                    ),
-                    onPressed: () => _showEditStockDialog(context, watch),
                   ),
                 ),
               );
@@ -81,7 +110,6 @@ class SellerInventoryView extends StatelessWidget {
             controller: stockController,
             decoration: const InputDecoration(
               labelText: 'Quantity',
-              border: OutlineInputBorder(),
               suffixText: 'units',
             ),
             keyboardType: TextInputType.number,

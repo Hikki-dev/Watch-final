@@ -616,7 +616,7 @@ void main() {
       // Verify we are actually in the detail view
       expect(find.text('Description'), findsOneWidget);
 
-      final addBtn = find.widgetWithText(FilledButton, 'Add to Cart');
+      final addBtn = find.widgetWithText(FilledButton, 'ADD TO CART');
       // Ensure it's there
       await tester.ensureVisible(addBtn);
       await tester.tap(addBtn);
@@ -626,22 +626,22 @@ void main() {
       expect(find.text('Added to cart'), findsOneWidget);
 
       // 2. Go to Cart (AppBar icon usually)
-      await tester.tap(find.byIcon(Icons.shopping_cart));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.byIcon(Icons.shopping_bag_outlined));
+      await tester.pumpAndSettle(); // route transition needs more than one frame
 
       // Verify Item in Cart
       expect(find.text('Rolex Submariner'), findsOneWidget);
 
       // 3. Checkout
-      await tester.tap(find.text('Checkout'));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.tap(find.text('CHECKOUT'));
+      await tester.pumpAndSettle();
 
       // Verify Dialog
       expect(find.text('Order Placed'), findsOneWidget);
 
       // Confirm Dialog
       await tester.tap(find.text('OK'));
-      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       // Verify Cart Cleared
       expect(find.text('Your cart is empty'), findsOneWidget);
