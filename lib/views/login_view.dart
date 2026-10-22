@@ -36,20 +36,10 @@ class _LoginViewState extends State<LoginView> {
       // 2. Backend Login (Laravel API)
       final user = userCredential.user;
       if (user != null && user.email != null) {
-        // Try to get Google ID from provider data
-        String? googleId;
-        for (var profile in user.providerData) {
-          if (profile.providerId == 'google.com') {
-            googleId = profile.uid;
-            break;
-          }
-        }
-
-        final token = await authService.loginToBackend(
-          user.email!,
-          user.displayName,
-          googleId,
-        );
+        final idToken = await user.getIdToken();
+        final token = idToken == null
+            ? null
+            : await authService.loginToBackend(idToken, user.displayName);
 
         if (token == null) {
           if (!mounted) return;

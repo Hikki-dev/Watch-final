@@ -17,11 +17,9 @@ class AuthService {
 
   // --- Backend Integration ---
 
-  Future<String?> loginToBackend(
-    String email,
-    String? name,
-    String? googleId,
-  ) async {
+  /// Exchanges the user's Firebase ID token for a backend API token.
+  /// The backend verifies the token with Google, so no email is sent.
+  Future<String?> loginToBackend(String idToken, String? name) async {
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/google'),
@@ -29,7 +27,7 @@ class AuthService {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        body: jsonEncode({'email': email, 'name': name, 'google_id': googleId}),
+        body: jsonEncode({'id_token': idToken, 'name': name}),
       );
 
       debugPrint(
