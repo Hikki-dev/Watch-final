@@ -1,4 +1,6 @@
-# Setup guide
+# Getting started
+
+This guide takes you from nothing to a running app. It needs a Firebase project and an API from [Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch). The short version is in the [README](../README.md#run-it-yourself).
 
 ## 1. Prerequisites
 
