@@ -12,7 +12,7 @@ The API cannot be reached, or `API_BASE_URL` is wrong. Open `https://<your-host>
 
 ## I signed in with Google but the app shows an error
 
-The token trade failed at `/auth/google`. Look at the API's logs. The store needs `FIREBASE_WEB_API_KEY` set to check the token.
+The token trade failed at `/auth/google`. Look at the API's logs. The store needs `FIREBASE_WEB_API_KEY` set to check the token. On the live Laravel-Watch demo this is not set up yet, and the API answers "Google login is not configured".
 
 ## "Token is null" when I change my photo
 

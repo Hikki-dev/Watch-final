@@ -125,7 +125,7 @@ Every key, and what to do for Android and iOS, is in [Getting started](docs/Gett
 
 ## A tour of the app
 
-This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **There are no screenshots yet**: the signed in screens need an account, and the app has not been run on a device for this write up. Only the web sign in screen was opened. The look is shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch tour](https://github.com/Hikki-dev/Laravel-Watch#a-tour-of-the-store).
+This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **There are no screenshots yet**: the signed in screens need an account, and the app has not been run on a device for this write up. Only the web sign in screen was opened, and it is shown in step 2. The look is shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch tour](https://github.com/Hikki-dev/Laravel-Watch#a-tour-of-the-store).
 
 ### 1. Opening the app
 
@@ -134,6 +134,12 @@ A short splash screen shows while the app starts, checks who is signed in and lo
 ### 2. Signing in
 
 The sign in screen has an email and a password, a **Login** button and a **Sign in with Google** button. A new person taps **Create Account**, fills in the form and ticks **I agree to Terms & Conditions**. Firebase checks the person. The app then trades Firebase's proof for a token from the marketplace and keeps it on the device.
+
+<p align="center"><img src="docs/images/sign-in.jpg" alt="The sign in screen on the web version: the LUXWATCH name, Welcome Back, email and password boxes, Login, Sign in with Google and Create Account" width="60%"></p>
+
+The picture is the web version, taken at a small 800 by 600 size. It is the only screen shown, because the others need an account.
+
+**Known problem:** Google sign in against the live Laravel demo does not work yet, because that site is not set up to check Firebase tokens. Email and password sign in is the other route. See [Fixing problems](docs/Fixing%20problems.md).
 
 After sign in, the app opens the screen that matches the person's role: shoppers go home, sellers and admins reach their own dashboards from the profile.
 
