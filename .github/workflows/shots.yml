@@ -20,7 +20,7 @@ jobs:
           async function shoot(name, w, h, scale) {
             for (const args of MODES) {
               const b = await chromium.launch({ args });
-              const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale });
+              const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale, locale: 'en-US', timezoneId: 'Asia/Dubai' });
               p.on('console', m => console.log('console:', m.type(), m.text().slice(0, 160)));
               p.on('pageerror', e => console.log('pageerror:', String(e).slice(0, 200)));
               p.on('requestfailed', r => console.log('reqfailed:', r.url().slice(0, 120), r.failure()?.errorText));
