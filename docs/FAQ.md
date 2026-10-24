@@ -4,7 +4,7 @@
 No. It is a portfolio project that shows a Flutter shopper app talking to a real backend. Nothing is sold.
 
 **Where is the live demo?**
-Not online right now. The planned address answers "deployment not found", and the GitHub Pages deploy needs Pages to be switched on. See the [README](../README.md#the-live-demo). The [Laravel-Watch demo](https://luxwatch-livid.vercel.app) shows the marketplace the app uses.
+The web version is at <https://hikki-dev.github.io/Watch-final/>, served by GitHub Pages. The [Laravel-Watch demo](https://luxwatch-livid.vercel.app) shows the marketplace the app uses.
 
 **Do I need Laravel-Watch to run the app?**
 Yes, or another API with the same routes. The app has no data of its own. See [How everything fits](How%20everything%20fits.md).

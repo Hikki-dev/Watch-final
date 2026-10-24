@@ -10,7 +10,8 @@ The app is written up as a guided tour, as the shopper half of a pair with Larav
 * **New:** guides for getting started, how it fits, how it works, fixing problems and questions
 * **New:** an MIT licence, contributing and security pages, issue forms and a pull request form
 * **New:** a social preview picture
-* **Better:** the README now says plainly that checkout in the app is a placeholder and that the web demo is offline
+* **New:** the web version is live on GitHub Pages
+* **Better:** the README now says plainly that checkout in the app is a placeholder
 
 ## 1.0.0 (22 October 2026)
 

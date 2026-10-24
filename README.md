@@ -5,6 +5,7 @@
 [![Firebase sign in](https://img.shields.io/badge/Sign%20in-Firebase-FFCA28?logo=firebase&logoColor=black)](https://firebase.google.com)
 [![Backend](https://img.shields.io/badge/Backend-Laravel--Watch-FF2D20?logo=laravel&logoColor=white)](https://github.com/Hikki-dev/Laravel-Watch)
 ![Platforms](https://img.shields.io/badge/platforms-Android%20%7C%20iOS%20%7C%20Web-lightgrey)
+[![Live demo](https://img.shields.io/badge/live-demo-7a5c28)](https://hikki-dev.github.io/Watch-final/)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-7a5c28)](LICENSE)
 
 A luxury watch store you carry in your pocket. Shoppers browse by brand, search, open a watch, save favourites and keep a cart that follows them from device to device. Sellers manage their stock and admins manage products and people, all from the same app.
@@ -61,7 +62,7 @@ Each part does one small job. Together they make a store that works even on a ba
 | **Role** | The shopper app | The marketplace: website, database, API |
 | **Built with** | Flutter, Firebase sign in, Hive | Laravel 12, Livewire, Postgres or MySQL |
 | **Holds the data?** | No. It keeps a copy of the catalogue to start fast | Yes. Watches, orders and accounts live there |
-| **Live demo** | Not online right now, see [The live demo](#the-live-demo) | <https://luxwatch-livid.vercel.app> |
+| **Live demo** | <https://hikki-dev.github.io/Watch-final/> | <https://luxwatch-livid.vercel.app> |
 
 The two share one look: the same colours, the same three fonts and the same way of showing a watch on a soft backdrop. Roles are the same in both, and the marketplace is the one that enforces them.
 
@@ -75,11 +76,13 @@ The longer story, step by step, is in [How everything fits](docs/How%20everythin
 
 ## The live demo
 
-The web version was meant to be served at <https://watchapp-phi.vercel.app>, and a second route through GitHub Pages was set up. **Neither is online at the moment**: that address answers "deployment not found", and the first Pages run stopped because Pages had not been switched on for the repository. Until that is fixed, the way to see the app is to [run it yourself](#run-it-yourself).
+**[Open the web version](https://hikki-dev.github.io/Watch-final/).** It is the same Flutter app, built on GitHub and served by GitHub Pages. It opens on a short splash and then the sign in screen, with an email, a password, **Login**, **Sign in with Google** and **Create Account**. It talks to the [Laravel-Watch](https://github.com/Hikki-dev/Laravel-Watch) demo for its data. Nothing is sold, and no real money moves.
 
-You can still see the marketplace it talks to. **[Open the Laravel-Watch demo](https://luxwatch-livid.vercel.app)** and you will recognise the same watches, brands and colours.
+The older address <https://watchapp-phi.vercel.app> is gone (it answers "deployment not found"). Pages replaces it.
 
-[Deploying the web version](docs/DEPLOYMENT.md) lists the steps to put it back online.
+You can also see the marketplace the app talks to. **[Open the Laravel-Watch demo](https://luxwatch-livid.vercel.app)** and you will recognise the same watches, brands and colours.
+
+[Deploying the web version](docs/DEPLOYMENT.md) lists the steps to build it yourself.
 
 ## Before you start
 
@@ -120,7 +123,7 @@ Every key, and what to do for Android and iOS, is in [Getting started](docs/Gett
 
 ## A tour of the app
 
-This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **There are no screenshots yet**, because the web demo is offline and the app has not been run for this write up. The look is shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch tour](https://github.com/Hikki-dev/Laravel-Watch#a-tour-of-the-store).
+This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **There are no screenshots yet**: the signed in screens need an account, and the app has not been run on a device for this write up. Only the web sign in screen was opened. The look is shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch tour](https://github.com/Hikki-dev/Laravel-Watch#a-tour-of-the-store).
 
 ### 1. Opening the app
 
