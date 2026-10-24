@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 400" font-family="Helvetica, Arial, sans-serif">
+  <title>How Watch-final and Laravel-Watch fit together</title>
+  <desc>The Flutter app signs in through Firebase, trades the Firebase token for an API token from the Laravel-Watch store, then reads watches, cart and favourites from its REST API. A local Hive copy of the catalogue lets the app start fast.</desc>
+  <rect width="960" height="400" fill="#F5F3EF"/>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7A5C28"/></marker></defs>
+  <g stroke="#7A5C28" stroke-width="2" fill="none" marker-end="url(#a)">
+    <path d="M250 150 H350"/><path d="M250 250 H350"/>
+    <path d="M610 150 H710"/><path d="M610 250 H710"/>
+  </g>
+  <g fill="#FFFFFF" stroke="#DCD8CE" stroke-width="2">
+    <rect x="40" y="110" width="210" height="180" rx="8"/>
+    <rect x="360" y="110" width="250" height="80" rx="8"/>
+    <rect x="360" y="210" width="250" height="80" rx="8"/>
+    <rect x="720" y="110" width="210" height="80" rx="8"/>
+    <rect x="720" y="210" width="210" height="80" rx="8"/>
+  </g>
+  <g fill="#121315" text-anchor="middle">
+    <text x="145" y="160" font-size="22" font-weight="bold">Watch-final</text>
+    <text x="145" y="190" font-size="16">Flutter shopper app</text>
+    <text x="145" y="215" font-size="14" fill="#66625A">phone, tablet or web</text>
+    <text x="485" y="145" font-size="19" font-weight="bold">Firebase sign in</text>
+    <text x="485" y="170" font-size="14" fill="#66625A">email or Google</text>
+    <text x="485" y="245" font-size="19" font-weight="bold">Laravel-Watch API</text>
+    <text x="485" y="270" font-size="14" fill="#66625A">token, watches, cart, favourites</text>
+    <text x="825" y="145" font-size="19" font-weight="bold">Firebase ID token</text>
+    <text x="825" y="170" font-size="14" fill="#66625A">traded for an API token</text>
+    <text x="825" y="245" font-size="19" font-weight="bold">Marketplace data</text>
+    <text x="825" y="270" font-size="14" fill="#66625A">database and Stripe</text>
+    <text x="145" y="340" font-size="14" fill="#66625A">Hive keeps the last catalogue on the device</text>
+  </g>
+</svg>
