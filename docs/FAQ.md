@@ -25,4 +25,4 @@ In `lib/theme/lux_theme.dart`. See [Design](DESIGN.md).
 The marketplace sends a list of frame pictures with a watch. The app shows the viewer when there are at least eight. No frames are bundled in this repository.
 
 **Which platforms are supported?**
-Android, iOS and web are set up and tested by the author's work. The project also holds macOS, Windows and Linux folders from the Flutter template, and the macOS and Windows Firebase options are in `firebase_options.dart`, but they are not described here.
+The README badges list Android, iOS and web, and those are the ones this guide covers. The project folder also holds macOS, Windows and Linux folders from the Flutter template. They are not described or checked here.
