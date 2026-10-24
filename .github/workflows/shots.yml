@@ -1,0 +1,33 @@
+name: Capture screenshots
+on: workflow_dispatch
+jobs:
+  shots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm init -y >/dev/null && npm i playwright@1.49.1 --no-audit --no-fund && npx playwright install --with-deps chromium
+      - name: Capture
+        run: |
+          cat > shot.js <<'JS'
+          const { chromium } = require('playwright');
+          const URL = 'https://hikki-dev.github.io/Watch-final/';
+          async function shoot(name, w, h, scale) {
+            const b = await chromium.launch({ args: ['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
+            const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale });
+            await p.goto(URL, { waitUntil: 'load' });
+            let size = 0;
+            for (let i = 0; i < 12; i++) {
+              await p.waitForTimeout(3000);
+              const buf = await p.screenshot({ path: name });
+              size = buf.length;
+              if (size > 60000) break;
+            }
+            console.log(name, size);
+            await b.close();
+          }
+          (async () => { await shoot('signin-desktop.png', 1440, 900, 2); await shoot('signin-phone.png', 390, 844, 3); })();
+          JS
+          node shot.js
+      - uses: actions/upload-artifact@v4
+        with: { name: shots, path: '*.png' }
