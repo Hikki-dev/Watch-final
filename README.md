@@ -112,6 +112,8 @@ FIREBASE_WEB_APP_ID=...
 FIREBASE_WEB_AUTH_DOMAIN=your-project-id.firebaseapp.com
 ```
 
+For the Laravel-Watch demo on Vercel the address is `https://luxwatch-livid.vercel.app/api/api`, because Vercel uses `/api` for its own functions.
+
 Then run it:
 
 ```bash

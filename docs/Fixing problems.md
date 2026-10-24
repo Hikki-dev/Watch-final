@@ -8,7 +8,7 @@ Create the `.env` file in the project folder. It is a declared asset, so the bui
 
 ## The catalogue is empty
 
-The API cannot be reached, or `API_BASE_URL` is wrong. Open `https://<your-host>/api/products` in a browser. If you see JSON, the store is fine and the address in `.env` is the problem. Remember it must end in `/api`.
+The API cannot be reached, or `API_BASE_URL` is wrong. Open `https://<your-host>/api/products` in a browser. If you see JSON, the store is fine and the address in `.env` is the problem. Remember it must end in `/api`, or in `/api/api` for a store hosted on Vercel.
 
 ## I signed in with Google but the app shows an error
 
