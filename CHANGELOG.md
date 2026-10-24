@@ -30,6 +30,6 @@ Accounts and polish.
 * **New:** images load through the API so the web version works
 * **Fixed:** clearer sign in errors
 
-## 0.1.0 (November 2025)
+## 0.1.0 (September 2025)
 
-The first working app: Firebase sign in, the catalogue, favourites, a cart, and seller and admin screens, talking to the Laravel store.
+The project starts as a Flutter app that talks to the Laravel store.
