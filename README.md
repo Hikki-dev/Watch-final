@@ -135,9 +135,9 @@ A short splash screen shows while the app starts, checks who is signed in and lo
 
 The sign in screen has an email and a password, a **Login** button and a **Sign in with Google** button. A new person taps **Create Account**, fills in the form and ticks **I agree to Terms & Conditions**. Firebase checks the person. The app then trades Firebase's proof for a token from the marketplace and keeps it on the device.
 
-<p align="center"><img src="docs/images/sign-in.jpg" alt="The sign in screen on the web version: the LUXWATCH name, Welcome Back, email and password boxes, Login, Sign in with Google and Create Account" width="60%"></p>
+<p align="center"><img src="docs/images/sign-in.jpg" alt="The sign in screen of the web version on a desktop: the LUXWATCH name, Welcome Back, email and password boxes, Login, Sign in with Google and Create Account" width="62%"> <img src="docs/images/sign-in-phone.jpg" alt="The same sign in screen at phone width" width="28%"></p>
 
-The picture is the web version, taken at a small 800 by 600 size. It is the only screen shown, because the others need an account.
+These are the web version, on a desktop and at phone width. They are the only screens shown, because the others need an account.
 
 **Known problem:** Google sign in against the live Laravel demo does not work yet, because that site is not set up to check Firebase tokens. Email and password sign in is the other route. See [Fixing problems](docs/Fixing%20problems.md).
 
