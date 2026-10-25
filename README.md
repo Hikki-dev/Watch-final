@@ -21,7 +21,7 @@ It is a portfolio project, built to show a careful Flutter app that talks to a r
 * [What you get](#what-you-get): the parts of the app
 * [Two repos, one store](#two-repos-one-store): the app and the marketplace
 * [How everything fits together](#how-everything-fits-together): from a tap to the database
-* [The live demo](#the-live-demo): what is and is not online
+* [The live demo](#the-live-demo): the web version on GitHub Pages
 * [Before you start](#before-you-start): what your computer needs
 * [Run it yourself](#run-it-yourself): ten minutes to a running app
 * [A tour of the app](#a-tour-of-the-app)
@@ -125,7 +125,7 @@ Every key, and what to do for Android and iOS, is in [Getting started](docs/Gett
 
 ## A tour of the app
 
-This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **There are no screenshots yet**: the signed in screens need an account, and the app has not been run on a device for this write up. Only the web sign in screen was opened, and it is shown in step 2. The look is shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch tour](https://github.com/Hikki-dev/Laravel-Watch#a-tour-of-the-store).
+This tour follows a shopper from the first launch to the admin tools. It is written from the code of each screen, so every name and button below exists in the app. **Step 2 has pictures** of the web version (sign in, an empty form, creating an account and the dark theme), taken at high sharpness from the live site. The screens after sign in need an account, so they are described but not pictured. The look is also shown in the picture at the top and in the [Design](docs/DESIGN.md) guide, and the matching website screens are in the [Laravel-Watch walkthrough](https://github.com/Hikki-dev/Laravel-Watch#the-store-step-by-step).
 
 ### 1. Opening the app
 
