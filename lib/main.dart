@@ -101,16 +101,19 @@ class _WatchAppState extends State<WatchApp> {
       _themeMode = mode;
     });
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _themeKey,
-      mode == ThemeMode.dark ? 'dark' : 'light',
-    );
+    await prefs.setString(_themeKey, mode == ThemeMode.dark ? 'dark' : 'light');
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'LUXWATCH',
+      // English only. Pinning the locale stops a browser that reports a malformed
+      // one (for example an empty tag) from crashing start-up with "Incorrect
+      // locale information provided", which left the page blank.
+      locale: const Locale('en', 'US'),
+      supportedLocales: const [Locale('en', 'US')],
+      localeResolutionCallback: (_, _) => const Locale('en', 'US'),
       debugShowCheckedModeBanner: false,
       theme: LuxTheme.light(),
       darkTheme: LuxTheme.dark(),

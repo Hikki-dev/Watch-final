@@ -46,6 +46,7 @@ flutter:
   assets:
     - .env
     # Brand logos
+    - assets/images/google_g.png
     - assets/images/brands/ap.png
     - assets/images/brands/casio.png
     - assets/images/brands/citizen.png
