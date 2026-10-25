@@ -19,7 +19,7 @@ jobs:
             await p.goto(URL, { waitUntil: 'load' });
             console.log('navigator.language =', JSON.stringify(await p.evaluate(() => navigator.language)));
             let size = 0;
-            for (let i = 0; i < 10; i++) { await p.waitForTimeout(3000); size = (await p.screenshot({ path: name })).length; if (size > 40000) break; }
+            for (let i = 0; i < 10; i++) { await p.waitForTimeout(3000); size = (await p.screenshot({ path: name })).length; if (size > 40000) { await p.waitForTimeout(9000); size = (await p.screenshot({ path: name })).length; break; } }
             console.log(name, size);
             await b.close();
           }
