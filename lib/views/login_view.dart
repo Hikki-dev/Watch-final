@@ -234,7 +234,12 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         const SizedBox(height: 12),
                         OutlinedButton.icon(
-                          icon: const Icon(Icons.g_mobiledata, size: 28),
+                          icon: Image.asset(
+                            'assets/images/google_g.png',
+                            width: 20,
+                            height: 20,
+                            filterQuality: FilterQuality.high,
+                          ),
                           label: const Text('Sign in with Google'),
                           onPressed: _loginWithGoogle,
                         ),
