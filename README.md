@@ -137,9 +137,27 @@ The sign in screen has an email and a password, a **Login** button and a **Sign 
 
 <p align="center"><img src="docs/images/sign-in.jpg" alt="The sign in screen of the web version on a desktop: the LUXWATCH name, Welcome Back, email and password boxes, Login, Sign in with Google and Create Account" width="62%"> <img src="docs/images/sign-in-phone.jpg" alt="The same sign in screen at phone width" width="28%"></p>
 
-These are the web version, on a desktop and at phone width. They are the only screens shown, because the others need an account.
+These are the web version, on a desktop and at phone width. The screens after sign in need an account, so they are described but not pictured.
 
-**Known problem:** Google sign in against the live Laravel demo does not work yet, because that site is not set up to check Firebase tokens. Email and password sign in is the other route. See [Fixing problems](docs/Fixing%20problems.md).
+#### If a box is empty
+
+Press **Login** with nothing typed and the app answers with a short message at the bottom of the screen: "Please fill all fields". Nothing is sent to the server.
+
+<p align="center"><img src="docs/images/sign-in-error.jpg" alt="The sign in screen after pressing Login with empty boxes, with the message Please fill all fields at the bottom" width="62%"> <img src="docs/images/sign-in-error-phone.jpg" alt="The same message on a phone" width="28%"></p>
+
+#### Creating an account
+
+**Create Account** opens a short form: **Full Name**, **Email**, **Password**, and the box **I agree to Terms & Conditions**. The back arrow returns to sign in. Without the tick the app says "Please agree to terms".
+
+<p align="center"><img src="docs/images/register-phone.jpg" alt="The Create Account screen on a phone with Full Name, Email and Password boxes, the terms checkbox and the Create Account button" width="40%"></p>
+
+#### The dark theme
+
+The app is light by default. The dark theme uses the same layout with a dark ground and a gold button, and the choice is remembered on the device.
+
+<p align="center"><img src="docs/images/sign-in-dark.jpg" alt="The sign in screen in the dark theme" width="62%"></p>
+
+**Known problem:** Google sign in has not been tested end to end for this write up. The live Laravel demo now has the Firebase key it needs to check the token, but a real Google sign in from the app was not tried. Email and password sign in is the other route. See [Fixing problems](docs/Fixing%20problems.md).
 
 After sign in, the app opens the screen that matches the person's role: shoppers go home, sellers and admins reach their own dashboards from the profile.
 
