@@ -14,7 +14,7 @@ jobs:
           const URL = 'https://hikki-dev.github.io/Watch-final/';
           async function shoot(name, w, h, scale) {
             const b = await chromium.launch({ args: ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist'] });
-            const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale });
+            const p = await b.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: scale, locale: 'en-US', timezoneId: 'Asia/Dubai' });
             p.on('pageerror', e => console.log('pageerror:', String(e).slice(0, 200)));
             await p.goto(URL, { waitUntil: 'load' });
             console.log('navigator.language =', JSON.stringify(await p.evaluate(() => navigator.language)));
