@@ -278,26 +278,18 @@ class ProfileView extends StatelessWidget {
                 future: controller.getCurrentLocationAddress(),
                 builder: (context, snapshot) {
                   // FIXED: Removed the incorrect battery calculation logic here
+                  // The address goes under the title. In the trailing slot it was
+                  // squeezed so narrow that the title wrapped one letter per line.
                   return ListTile(
                     leading: const Icon(Icons.location_on),
                     title: const Text('Current Location'),
-                    subtitle: const Text(
-                      'Latitude / Longitude',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    trailing: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 10000),
-                      child: Text(
-                        snapshot.connectionState == ConnectionState.waiting
-                            ? 'Fetching...'
-                            : snapshot.data ?? 'Unavailable',
-                        textAlign: TextAlign.end,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                    subtitle: Text(
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? 'Fetching...'
+                          : snapshot.data ?? 'Unavailable',
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                     ),
                   );
                 },
