@@ -214,12 +214,26 @@ class AuthService {
     }
   }
 
+  /// Web only. Does the slow part of Google sign-in ahead of the tap (session
+  /// persistence and loading Firebase's popup helper), so the popup can open
+  /// instantly when the person taps the button.
+  Future<void> prepareGoogleSignIn() async {
+    if (!kIsWeb) return;
+    try {
+      await _firebaseAuth.setPersistence(Persistence.SESSION);
+      await _firebaseAuth.getRedirectResult();
+    } catch (e) {
+      debugPrint('prepareGoogleSignIn: $e');
+    }
+  }
+
   // Google Sign-In
   Future<UserCredential> signInWithGoogle() async {
     try {
       if (kIsWeb) {
-        await _firebaseAuth.setPersistence(Persistence.SESSION);
-        // For web, we can use signInWithPopup or redirect
+        // Nothing may be awaited before the popup opens: Safari only allows the
+        // window when it opens straight from the tap. The setup is done in
+        // prepareGoogleSignIn(), called when the sign-in screen appears.
         final GoogleAuthProvider googleProvider = GoogleAuthProvider();
         return await _firebaseAuth.signInWithPopup(googleProvider);
       } else {

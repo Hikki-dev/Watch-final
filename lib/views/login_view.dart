@@ -14,6 +14,13 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  @override
+  void initState() {
+    super.initState();
+    // Get Google sign-in ready before the first tap (see AuthService).
+    context.read<AuthService>().prepareGoogleSignIn();
+  }
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _hidePassword = true;
