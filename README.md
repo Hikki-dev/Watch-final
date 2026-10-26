@@ -18,7 +18,7 @@ It is a portfolio project, built to show a careful Flutter app that talks to a r
 
 ## On this page
 
-* [What you get](#what-you-get): the parts of the app
+* [What you get](#what-you-get): the parts of the app, and what it is built with
 * [Two repos, one store](#two-repos-one-store): the app and the marketplace
 * [How everything fits together](#how-everything-fits-together): from a tap to the database
 * [The live demo](#the-live-demo): what is and is not online
@@ -54,6 +54,15 @@ Each part does one small job. Together they make a store that works even on a ba
 | 🔐 | **Sign in** | Email and password, or Google, through Firebase |
 | 📴 | **Starts fast** | The last catalogue is kept on the device with Hive and shown while fresh data loads |
 | 🌗 | **Light and dark** | Light by default, with a switch that is remembered |
+
+### What it is built with
+
+<table>
+<tr><td width="64"><img src="docs/images/icons/flutter.png" alt="Flutter logo" width="48"></td><td width="170"><b>Flutter</b></td><td>One app for phones, tablets and the web</td></tr>
+<tr><td><img src="docs/images/icons/dart.png" alt="Dart logo" width="48"></td><td><b>Dart</b></td><td>The language Flutter is written in</td></tr>
+<tr><td><img src="docs/images/icons/firebase.png" alt="Firebase logo" width="48"></td><td><b>Firebase</b></td><td>Email and Google sign in. The app trades its token for an API token from the store</td></tr>
+<tr><td><img src="docs/images/icons/laravel.png" alt="Laravel logo" width="48"></td><td><b>Laravel-Watch</b></td><td>The marketplace behind the app: website, database and REST API</td></tr>
+</table>
 
 ## Two repos, one store
 
