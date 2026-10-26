@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -25,8 +26,9 @@ class UniversalImage extends StatelessWidget {
   });
 
   /// Image provider for a path, so callers can precache frames.
-  static ImageProvider providerFor(String path) =>
-      path.startsWith('http') ? CachedNetworkImageProvider(path) : AssetImage(path);
+  static ImageProvider providerFor(String path) => path.startsWith('http')
+      ? CachedNetworkImageProvider(path)
+      : AssetImage(path);
 
   @override
   Widget build(BuildContext context) {
@@ -67,14 +69,36 @@ class UniversalImage extends StatelessWidget {
 
     // 2. Network Image
     // Use CachedNetworkImage for better performance if it's a URL
+    if (imagePath!.startsWith('http') && kIsWeb) {
+      // On the web the browser draws and decodes the picture itself (an <img>
+      // element). The canvas decoder showed some photos as black boxes in
+      // Safari on iPhone. The image server allows cross-origin use.
+      return Image.network(
+        imagePath!,
+        width: width,
+        height: height,
+        fit: fit,
+        gaplessPlayback: gapless,
+        webHtmlElementStrategy: WebHtmlElementStrategy.prefer,
+        errorBuilder: (context, error, stackTrace) => SizedBox(
+          width: width,
+          height: height,
+          child: errorWidget ?? const Icon(Icons.broken_image),
+        ),
+      );
+    }
     if (imagePath!.startsWith('http')) {
       return CachedNetworkImage(
         imageUrl: imagePath!,
         width: width,
         height: height,
         fit: fit,
-        fadeInDuration: gapless ? Duration.zero : const Duration(milliseconds: 500),
-        fadeOutDuration: gapless ? Duration.zero : const Duration(milliseconds: 1000),
+        fadeInDuration: gapless
+            ? Duration.zero
+            : const Duration(milliseconds: 500),
+        fadeOutDuration: gapless
+            ? Duration.zero
+            : const Duration(milliseconds: 1000),
         placeholder: (context, url) =>
             // Photographs sit on a studio backdrop that shows while they fade in,
             // so there is no spinner by default.

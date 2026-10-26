@@ -73,9 +73,19 @@ class _LoginViewState extends State<LoginView> {
       if (!mounted) return;
       if (e.code == 'ERROR_ABORTED_BY_USER') return; // Ignore user cancellation
 
+      // Safari on iPhone often blocks the Google window on this site.
+      final blocked =
+          e.code == 'popup-blocked' ||
+          e.code == 'web-context-canceled' ||
+          (e.message ?? '').toLowerCase().contains('popup');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Google Sign-In Failed: ${e.message}'),
+          content: Text(
+            blocked
+                ? 'This browser blocked the Google sign-in window. Use your '
+                      'email and password, or open this page in Chrome.'
+                : 'Google Sign-In Failed: ${e.message}',
+          ),
           backgroundColor: Colors.red,
         ),
       );
